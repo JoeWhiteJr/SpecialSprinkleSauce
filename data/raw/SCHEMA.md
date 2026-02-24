@@ -1,4 +1,42 @@
-# Dow Jones Historical Data Schema
+# Raw Data Schemas
+
+This document describes the raw datasets stored locally (not committed to git).
+
+---
+
+# Emery Intraday OHLCV Dataset
+
+## File Format
+- **Type**: CSV (compressed archive, 32GB total)
+- **Source**: Emery's 5-year market data extract
+- **Granularity**: 1-minute bars
+- **Coverage**: ~8,682 tickers (comprehensive US market)
+- **Sample File**: `2020-10-15.csv` (one trading day, 77MB, 1.37M rows)
+
+## Columns (8 Fields)
+| Column | Type | Description |
+|--------|------|-------------|
+| ticker | String | Stock symbol (e.g., AAPL, SPY) |
+| volume | Integer | Volume traded in this 1-minute window |
+| open | Float | Opening price of the minute bar |
+| close | Float | Closing price of the minute bar |
+| high | Float | High price of the minute bar |
+| low | Float | Low price of the minute bar |
+| window_start | Integer | Timestamp in nanoseconds (epoch) |
+| transactions | Integer | Number of transactions in this window |
+
+## Sample Ticker Coverage
+Top tickers by data density (from 2020-10-15 sample):
+- NIO, AAPL, SQQQ, SPY, QQQ, FSLY, TSLA, TQQQ, UVXY
+
+## Notes
+- Data spans pre-market through after-hours (~16 hours per day)
+- Timestamp conversion: `datetime.fromtimestamp(window_start / 1e9)`
+- Full dataset not extracted locally due to size (32GB compressed)
+
+---
+
+# Dow Jones Historical Data Schema (Miller NN)
 
 ## File Format
 - **Type**: CSV
