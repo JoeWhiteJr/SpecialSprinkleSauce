@@ -1,0 +1,134 @@
+# Wasden Watch CI/CD Pipeline
+# Runs lint and tests on push to main and pull requests
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Python Backend Linting and Tests
+  backend:
+    name: Backend (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest
+
+      - name: Lint with Ruff
+        run: |
+          # Check for errors (exit non-zero on errors)
+          ruff check . --select=E,F,W --ignore=E501
+          # Format check (don't fail, just warn for now)
+          ruff format --check . || echo "::warning::Some files need formatting"
+
+      - name: Type check imports
+        run: |
+          # Verify all imports resolve
+          python -c "from app.main import app; print('Backend imports OK')"
+        env:
+          TRADING_MODE: paper
+          USE_MOCK_DATA: "true"
+
+      - name: Run tests
+        run: |
+          # Run pytest if tests exist
+          if [ -d "tests" ] || find . -name "test_*.py" -o -name "*_test.py" | grep -q .; then
+            pytest -v --tb=short
+          else
+            echo "No tests found - skipping"
+          fi
+        env:
+          TRADING_MODE: paper
+          USE_MOCK_DATA: "true"
+
+  # Frontend Linting and Build
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: |
+          # Run ESLint if configured
+          if [ -f ".eslintrc.json" ] || [ -f "eslint.config.js" ] || grep -q "eslint" package.json; then
+            npm run lint || echo "::warning::Lint issues found"
+          else
+            echo "ESLint not configured - skipping"
+          fi
+
+      - name: Type check
+        run: |
+          # Run TypeScript compiler in check mode
+          npx tsc --noEmit || echo "::warning::TypeScript errors found"
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+
+  # Tools (Notion integration, etc.)
+  tools:
+    name: Tools (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-dotenv requests ruff
+
+      - name: Lint with Ruff
+        run: ruff check . --select=E,F,W --ignore=E501
+
+      - name: Syntax check
+        run: python -m py_compile notion_tickets.py
