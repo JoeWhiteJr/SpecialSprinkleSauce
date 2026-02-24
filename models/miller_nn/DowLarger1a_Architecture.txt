@@ -1,0 +1,356 @@
+================================================================
+ARCHITECTURE DOCUMENTATION: DowLarger1a.Rmd
+Neural Network for Dow Jones Closing Price Prediction (Extended Model)
+================================================================
+Version: 1.0
+Source File: DowLarger1a.Rmd
+Language: R (R Markdown Notebook)
+Predecessor: DowSmall1a.Rmd
+================================================================
+
+OVERVIEW
+--------
+DowLarger1a.Rmd is an expanded version of DowSmall1a.Rmd. It trains a
+deeper feedforward neural network (multilayer perceptron) to predict the
+closing price of the Dow Jones Industrial Average (DJIA) for a given
+trading day. The key upgrades over the predecessor are:
+
+  1. An additional input feature: the previous day's closing price
+     (Close_Lag1), giving the model knowledge of where the market
+     actually settled — not just where it opened.
+
+  2. A significantly deeper network topology: three hidden layers
+     (10 → 8 → 6) versus the prior model's two (5 → 3).
+
+  3. A stricter convergence threshold (0.001 vs. 0.01), meaning the
+     model trains longer and to a tighter error tolerance.
+
+  4. A safety ceiling on training iterations (stepmax = 1e7) to prevent
+     infinite loops on difficult convergence.
+
+  5. A broader normalization scope: min/max is computed across ALL
+     numeric columns (both open lags AND Close_Lag1), not just Open
+     and Close.
+
+Like its predecessor, this is a regression task outputting a single
+continuous value: the predicted closing price in USD.
+
+================================================================
+SECTION-BY-SECTION BREAKDOWN
+================================================================
+
+--- SECTION 1: LIBRARY DEPENDENCIES ---
+
+Same three packages as DowSmall1a:
+
+  1. neuralnet  — Neural network training and inference.
+  2. dplyr      — Data manipulation and lag feature engineering.
+  3. readr      — CSV loading (imported; data loaded via environment object).
+
+Auto-installation via if (!require(...)) install.packages() is retained.
+
+----------------------------------------------------------------
+
+--- SECTION 2: DATA PREPARATION ---
+
+Input Data Requirements:
+  - A dataframe named `dowjones1` must exist in the R environment.
+  - Required columns: Date, Open, Close.
+  - Must be daily DJIA data in any date range.
+
+Processing Steps:
+
+  Step 1 — Column Selection:
+    Only Date, Open, and Close are retained.
+
+  Step 2 — Chronological Sorting:
+    Arranged in ascending order by Date before lag creation.
+
+  Step 3 — Lag Feature Engineering:
+    SIX input features are constructed (vs. five in DowSmall1a):
+
+      Open_Lag0   =  Today's opening price (current day)
+      Open_Lag1   =  Opening price 1 trading day ago
+      Open_Lag2   =  Opening price 2 trading days ago
+      Open_Lag3   =  Opening price 3 trading days ago
+      Open_Lag4   =  Opening price 4 trading days ago
+      Close_Lag1  =  Previous day's closing price  [NEW vs. DowSmall1a]
+
+    The addition of Close_Lag1 is architecturally significant. It gives
+    the network access to where the market actually closed yesterday —
+    not just where it opened. This is a richer signal because closing
+    prices incorporate a full day of market activity, order flow,
+    institutional positioning, and after-hours sentiment.
+
+  Target variable: Close (today's closing price).
+
+  Step 4 — NA Removal:
+    na.omit() drops the first 4 rows (insufficient lag history).
+
+----------------------------------------------------------------
+
+--- SECTION 3: NORMALIZATION ---
+
+Method: Min-Max Normalization
+Formula: x_scaled = (x - min) / (max - min)
+Output range: [0, 1]
+
+Key difference from DowSmall1a:
+  In DowSmall1a, min/max was computed only from Open_Lag0 and Close.
+  In DowLarger1a, min/max is computed across ALL numeric columns
+  (all open lags, Close_Lag1, and Close), using:
+
+    max_val <- max(data_prepared %>% select(-Date))
+    min_val <- min(data_prepared %>% select(-Date))
+
+  This is more consistent and reduces the risk of any feature having
+  values outside the [0,1] range after normalization. However, since
+  all features are DJIA prices from the same instrument and era, the
+  min/max will be very similar across features — so the practical
+  impact is modest.
+
+  The same global min/max must be passed to predict_new_close() at
+  inference time for scaling consistency.
+
+Un-normalization formula: x_original = x_scaled * (max - min) + min
+
+----------------------------------------------------------------
+
+--- SECTION 4: TRAIN / TEST SPLIT ---
+
+Method: Random sampling (NOT sequential/chronological)
+Split ratio: 80% training, 20% testing
+Random seed: set.seed(123) — ensures reproducibility
+
+IMPORTANT CAVEAT (same as DowSmall1a):
+  This is a random split, which is inappropriate for time-series data.
+  Chronological splitting is the correct approach to avoid lookahead
+  bias. Future data should never inform model training. This remains
+  an unresolved limitation shared with the predecessor model and must
+  be corrected before production or backtesting use.
+
+----------------------------------------------------------------
+
+--- SECTION 5: NEURAL NETWORK ARCHITECTURE ---
+
+Library:        neuralnet (R package)
+Task type:      Regression (continuous output)
+Output type:    Linear (linear.output = TRUE)
+
+Network Topology:
+  Input Layer:    6 neurons (one per feature)
+  Hidden Layer 1: 10 neurons   [significantly larger than DowSmall1a's 5]
+  Hidden Layer 2: 8 neurons    [new layer vs. DowSmall1a]
+  Hidden Layer 3: 6 neurons    [new layer vs. DowSmall1a]
+  Output Layer:   1 neuron (predicted Close price, scaled)
+
+Visualized:
+  [Open_Lag0]  ──┐
+  [Open_Lag1]  ──┤
+  [Open_Lag2]  ──┤
+  [Open_Lag3]  ──┼──► [10 neurons] ──► [8 neurons] ──► [6 neurons] ──► [Close]
+  [Open_Lag4]  ──┤
+  [Close_Lag1] ──┘
+
+Training Parameters:
+  hidden          = c(10, 8, 6)  — Three hidden layers (deeper than DowSmall1a)
+  linear.output   = TRUE         — Regression mode; no activation on output
+  threshold       = 0.001        — Stricter convergence (10x tighter than DowSmall1a's 0.01)
+  stepmax         = 1e7          — Maximum training iterations cap (NEW vs. DowSmall1a)
+
+Training algorithm: Default neuralnet algorithm is resilient backpropagation
+(rprop+). Not explicitly changed in this script.
+
+Activation function: Default logistic (sigmoid) on hidden layers.
+Not explicitly set; uses neuralnet package defaults.
+
+Architectural rationale for the upgrades:
+  - Deeper networks can learn more complex nonlinear relationships between
+    inputs and the target. The 10→8→6 funnel progressively compresses
+    learned representations before output.
+  - A stricter threshold means the optimizer must find a more precise
+    minimum before stopping. This can improve accuracy but risks
+    overfitting on small datasets and dramatically increases training time.
+  - stepmax = 1e7 is a practical safeguard: if the model cannot converge
+    to the 0.001 threshold within 10 million steps, training halts rather
+    than running indefinitely.
+
+----------------------------------------------------------------
+
+--- SECTION 6: EVALUATION METRICS ---
+
+Same metric suite as DowSmall1a. All predictions are un-normalized to
+real dollar values before metric computation.
+
+  1. RMSE (Root Mean Squared Error):
+     Reported in dollar terms. Typical dollar error per prediction.
+
+  2. MAPE (Mean Absolute Percentage Error):
+     Average percentage error across all test predictions.
+
+  3. Accuracy (100 - MAPE):
+     Simplified accuracy proxy. Not a directional or financial metric.
+
+A sample of predicted vs. actual closing prices is printed for
+visual inspection.
+
+NOTE: With a deeper network and stricter threshold, RMSE and MAPE
+should generally improve relative to DowSmall1a — but this is not
+guaranteed if the deeper model overfits the training data. Evaluation
+on a held-out, chronologically-ordered test set would give a more
+honest comparison.
+
+----------------------------------------------------------------
+
+--- SECTION 7: INFERENCE FUNCTION ---
+
+Function: predict_new_close(new_data, model, min_v, max_v)
+
+Purpose: Real-time prediction on new unseen data without re-running
+         the full training pipeline.
+
+Inputs:
+  new_data  — A numeric vector of exactly 6 values (vs. 5 in DowSmall1a):
+              [Today's Open, Lag1 Open, Lag2 Open, Lag3 Open, Lag4 Open,
+               Previous Day's Close]
+  model     — The trained nn_model object
+  min_v     — Global minimum from training normalization
+  max_v     — Global maximum from training normalization
+
+Process:
+  1. Validates input (must be numeric, length == 6)
+  2. Names the vector with correct feature labels including Close_Lag1
+  3. Normalizes using the same global min/max from training
+  4. Runs neuralnet::compute() for forward pass inference
+  5. Un-normalizes output to dollar value
+  6. Returns predicted closing price as a numeric scalar
+
+Example call in the script:
+  example_new_data <- c(12500.50, 12450.20, 12480.90, 12400.00, 12350.75, 12495.30)
+  predicted_value <- predict_new_close(example_new_data, nn_model, min_val, max_val)
+
+The 6th value (12495.30) is the previous day's closing price — the new
+input not present in DowSmall1a's inference function.
+
+================================================================
+DATA FLOW SUMMARY (END TO END)
+================================================================
+
+  Raw Environment Object (dowjones1)
+          │
+          ▼
+  Select [Date, Open, Close] → Sort by Date
+          │
+          ▼
+  Engineer lag features: Open_Lag0 through Open_Lag4 + Close_Lag1
+  Drop NAs (first 4 rows)
+          │
+          ▼
+  Min-Max Normalize ALL numeric columns using global min/max → [0, 1]
+          │
+          ▼
+  Random 80/20 Train/Test Split (seed = 123)
+          │
+          ▼
+  Train neuralnet: 6 inputs → [10] → [8] → [6] → 1 output
+  (Threshold: 0.001 | Max steps: 10,000,000)
+          │
+          ▼
+  Predict on test set → Un-normalize → Compute RMSE, MAPE, Accuracy
+          │
+          ▼
+  predict_new_close() available for live inference (requires 6 inputs)
+
+================================================================
+COMPARISON: DowSmall1a vs. DowLarger1a
+================================================================
+
+  Feature                    DowSmall1a          DowLarger1a
+  ─────────────────────────────────────────────────────────────
+  Input features             5 (opens only)      6 (opens + Close_Lag1)
+  Hidden layer topology      [5, 3]              [10, 8, 6]
+  Total hidden neurons       8                   24
+  Convergence threshold      0.01                0.001
+  Max training steps         Default (no cap)    1,000,000,0
+  Normalization scope        Open_Lag0 + Close   All numeric columns
+  Inference input size       5 values            6 values
+  Training time (approx.)    Fast                Significantly longer
+  Complexity                 Low                 Medium-High
+
+================================================================
+KNOWN LIMITATIONS AND ARCHITECTURAL CONCERNS
+================================================================
+
+1. RANDOM TRAIN/TEST SPLIT (High Priority — same as DowSmall1a)
+   Must be replaced with a chronological split for valid time-series
+   evaluation. This is the most critical flaw shared by both models.
+
+2. OVERFITTING RISK (Higher than DowSmall1a)
+   Deeper networks with stricter convergence thresholds are more prone
+   to memorizing training data rather than generalizing. With a
+   relatively small DJIA dataset, the 10→8→6 topology may overfit.
+   Cross-validation or regularization (e.g., dropout, weight decay)
+   should be considered.
+
+3. TRAINING TIME
+   The combination of a deeper network, 6 inputs, and threshold = 0.001
+   can result in very long training times. The stepmax = 1e7 cap
+   prevents infinite loops but may cause the model to exit before
+   convergence, producing a warning and a potentially suboptimal model.
+   Always check for convergence warnings in the R console output.
+
+4. FEATURE SPARSITY (same as DowSmall1a)
+   Only price data is used. Volume, volatility, technical indicators,
+   sentiment, and fundamental signals are absent.
+
+5. NORMALIZATION EDGE CASES
+   The global min/max is computed from historical training data. Extreme
+   market events (e.g., a crash or a new all-time high) can push new
+   input values outside the [0,1] normalization range, degrading
+   predictions. A rolling normalization window would be more robust.
+
+6. NO DIRECTIONAL OUTPUT
+   The model predicts a price level, not a direction (up/down). For
+   trading signal generation, directional accuracy is often more
+   actionable than price-level accuracy.
+
+7. STATIC MODEL
+   No mechanism for retraining on new data. Live deployment would
+   require periodic retraining pipelines.
+
+================================================================
+INTEGRATION NOTES (FOR WASDEN WATCH SYSTEM)
+================================================================
+
+DowLarger1a represents a more capable signal generator than DowSmall1a,
+but both share the same core limitations. For integration into the
+Wasden Watch ensemble:
+
+  - Use chronological walk-forward validation to produce honest out-of-
+    sample performance estimates before treating either model as a
+    production signal.
+
+  - Close_Lag1 is a valuable addition. Consider extending this further
+    to include Close_Lag2 through Close_Lag4 for richer autoregressive
+    context.
+
+  - Monitor training convergence: with threshold = 0.001 and stepmax = 1e7,
+    log whether the model converges or exits early. Non-converged models
+    should be flagged and not used for live signals.
+
+  - For ensemble voting, convert the continuous price prediction to a
+    directional signal: if Predicted_Close > today's Open → BUY signal;
+    if Predicted_Close < today's Open → SELL/HOLD signal.
+
+  - Regularization should be explored (weight decay, early stopping) to
+    mitigate the elevated overfitting risk of the deeper architecture.
+
+  - Consider whether a deeper neural network is the right tool here, or
+    whether gradient-boosted trees (XGBoost) or ARIMA components would
+    produce more robust signals for the same feature set. The neuralnet
+    package is limited compared to modern deep learning frameworks
+    (PyTorch, Keras/TensorFlow) if more complex architectures are needed.
+
+================================================================
+END OF DOCUMENT
+================================================================

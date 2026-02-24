@@ -1,0 +1,308 @@
+================================================================
+ARCHITECTURE DOCUMENTATION: DowSmall1a.Rmd
+Neural Network for Dow Jones Closing Price Prediction
+================================================================
+Version: 1.0
+Source File: DowSmall1a.Rmd
+Language: R (R Markdown Notebook)
+================================================================
+
+OVERVIEW
+--------
+DowSmall1a.Rmd is a supervised machine learning script that trains a
+feedforward neural network (also called a multilayer perceptron, or MLP)
+to predict the closing price of the Dow Jones Industrial Average (DJIA)
+for a given trading day. The model uses only opening prices — specifically
+today's opening price and the opening prices from the four prior trading
+days — as its input features.
+
+This is a regression task (continuous price output), not a classification
+task. The model outputs a single numeric value: the predicted closing price
+in USD.
+
+================================================================
+SECTION-BY-SECTION BREAKDOWN
+================================================================
+
+--- SECTION 1: LIBRARY DEPENDENCIES ---
+
+The script uses three R packages:
+
+  1. neuralnet  — Core package for building and training the neural network.
+                  Provides the neuralnet() training function and compute()
+                  inference function.
+
+  2. dplyr      — Data manipulation (filtering, selecting columns, arranging
+                  rows, creating lag features via mutate/lag).
+
+  3. readr      — CSV data loading (imported but data is loaded via environment
+                  object in this version).
+
+Packages are auto-installed if missing using if (!require(...)) install.packages().
+
+----------------------------------------------------------------
+
+--- SECTION 2: DATA PREPARATION ---
+
+Input Data Requirements:
+  - A dataframe named `dowjones1` (or `stock_data`) must exist in the R
+    environment before the script runs.
+  - Required columns: Date, Open, Close.
+  - Data can span any time range but must be daily DJIA data.
+
+Processing Steps:
+
+  Step 1 — Column Selection:
+    Only Date, Open, and Close are retained. All other columns are dropped.
+
+  Step 2 — Chronological Sorting:
+    Data is arranged in ascending order by Date to ensure time-series
+    integrity before lag creation.
+
+  Step 3 — Lag Feature Engineering:
+    Five input features are constructed from the Open column:
+
+      Open_Lag0  =  Today's opening price (current day)
+      Open_Lag1  =  Opening price 1 trading day ago
+      Open_Lag2  =  Opening price 2 trading days ago
+      Open_Lag3  =  Opening price 3 trading days ago
+      Open_Lag4  =  Opening price 4 trading days ago
+
+    This gives the model a 5-day "window" of opening price history to
+    learn from. The target variable (what we're predicting) is the
+    current day's Close price.
+
+  Step 4 — NA Removal:
+    The first 4 rows are dropped via na.omit() because they cannot have
+    complete lag values (e.g., row 1 has no prior days to lag from).
+
+----------------------------------------------------------------
+
+--- SECTION 3: NORMALIZATION ---
+
+Method: Min-Max Normalization
+Formula: x_scaled = (x - min) / (max - min)
+Output range: [0, 1]
+
+Why this matters: Neural networks train more effectively and converge
+faster when all input values are on the same scale. Raw Dow Jones prices
+(ranging from ~1,000 to ~40,000+) would cause gradient instability
+without normalization.
+
+Important implementation detail:
+  - The global min and max are computed across BOTH Open_Lag0 AND Close
+    to ensure consistent scaling between inputs and output.
+  - The same min/max values are stored and reused for un-normalization
+    (inverse transformation) after predictions are made.
+
+Un-normalization formula: x_original = x_scaled * (max - min) + min
+
+The Date column is excluded from normalization (it's dropped before
+scaling via data_prepared[, -1]).
+
+----------------------------------------------------------------
+
+--- SECTION 4: TRAIN / TEST SPLIT ---
+
+Method: Random sampling (NOT sequential/chronological)
+Split ratio: 80% training, 20% testing
+Random seed: set.seed(123) — ensures reproducibility
+
+IMPORTANT CAVEAT:
+  This is a random split, which is non-standard for time-series data.
+  In a proper time-series context, the split should be chronological
+  (e.g., all data before a cutoff date = train; all data after = test).
+  Random splitting risks "lookahead bias" or "data leakage," where the
+  model sees future patterns during training. This is a known limitation
+  of this implementation and should be addressed in production use.
+
+----------------------------------------------------------------
+
+--- SECTION 5: NEURAL NETWORK ARCHITECTURE ---
+
+Library:       neuralnet (R package)
+Task type:     Regression (continuous output)
+Output type:   Linear (linear.output = TRUE)
+
+Network Topology:
+  Input Layer:   5 neurons (one per lag feature)
+  Hidden Layer 1: 5 neurons
+  Hidden Layer 2: 3 neurons
+  Output Layer:  1 neuron (predicted Close price, scaled)
+
+Visualized:
+  [Open_Lag0] ──┐
+  [Open_Lag1] ──┤
+  [Open_Lag2] ──┼──► [5 neurons] ──► [3 neurons] ──► [Close_predicted]
+  [Open_Lag3] ──┤
+  [Open_Lag4] ──┘
+
+Training Parameters:
+  hidden    = c(5, 3)   — Two hidden layers with 5 and 3 neurons respectively
+  linear.output = TRUE  — Regression mode (no activation on output neuron)
+  threshold = 0.01      — Convergence criterion; training stops when the
+                          partial derivatives of the error function are all
+                          below this threshold
+
+Activation function: Default in neuralnet is logistic (sigmoid) for
+hidden layers. This is not explicitly set in the script, so it uses
+the package default.
+
+Training algorithm: Default in neuralnet is resilient backpropagation
+(rprop+), which is generally more robust than standard gradient descent
+for small-to-medium datasets.
+
+----------------------------------------------------------------
+
+--- SECTION 6: EVALUATION METRICS ---
+
+After training, predictions are made on the held-out test set.
+Predictions are un-normalized back to real dollar values before
+metric calculation.
+
+Metrics computed:
+
+  1. MSE (Mean Squared Error):
+     Average of squared differences between actual and predicted close prices.
+     Not reported directly but used to compute RMSE.
+
+  2. RMSE (Root Mean Squared Error):
+     Square root of MSE. Reported in dollar terms.
+     Interpretation: "On average, the model's predictions are $X off
+     from the actual closing price."
+
+  3. MAPE (Mean Absolute Percentage Error):
+     Average percentage error across all predictions.
+     Formula: mean(|actual - predicted| / actual) * 100
+
+  4. Accuracy (100 - MAPE):
+     A derived metric. Example: if MAPE = 1.5%, accuracy = 98.5%.
+     NOTE: This is a simplified accuracy proxy, not a formal classification
+     accuracy. It should be interpreted carefully.
+
+A sample of predicted vs. actual closing prices is printed via head()
+for visual spot-checking.
+
+----------------------------------------------------------------
+
+--- SECTION 7: INFERENCE FUNCTION ---
+
+Function: predict_new_close(new_openings, model, min_v, max_v)
+
+Purpose: Allows real-time prediction on new, unseen data without
+         re-running the full pipeline.
+
+Inputs:
+  new_openings  — A numeric vector of exactly 5 values:
+                  [Today's Open, 1-day lag, 2-day lag, 3-day lag, 4-day lag]
+  model         — The trained nn_model object
+  min_v         — The global minimum used during training normalization
+  max_v         — The global maximum used during training normalization
+
+Process:
+  1. Validates input (must be numeric, length == 5)
+  2. Names the vector with correct feature labels
+  3. Normalizes using the same min/max from training (critical for
+     consistency — using different scaling would corrupt predictions)
+  4. Runs neuralnet::compute() for inference
+  5. Un-normalizes output back to dollar value
+  6. Returns predicted closing price as a numeric scalar
+
+Example call in the script:
+  example_new_data <- c(12500.50, 12450.20, 12480.90, 12400.00, 12350.75)
+  predicted_value <- predict_new_close(example_new_data, nn_model, min_val, max_val)
+
+================================================================
+DATA FLOW SUMMARY (END TO END)
+================================================================
+
+  Raw CSV / Environment Object (dowjones1)
+          │
+          ▼
+  Select [Date, Open, Close] → Sort by Date
+          │
+          ▼
+  Engineer lag features: Open_Lag0 through Open_Lag4
+  Drop NAs (first 4 rows)
+          │
+          ▼
+  Min-Max Normalize all numeric columns → [0, 1]
+          │
+          ▼
+  Random 80/20 Train/Test Split (seed = 123)
+          │
+          ▼
+  Train neuralnet: 5 inputs → [5] → [3] → 1 output
+  (Convergence threshold: 0.01)
+          │
+          ▼
+  Predict on test set → Un-normalize → Compute RMSE, MAPE, Accuracy
+          │
+          ▼
+  predict_new_close() available for live inference
+
+================================================================
+KNOWN LIMITATIONS AND ARCHITECTURAL CONCERNS
+================================================================
+
+1. RANDOM TRAIN/TEST SPLIT (High Priority)
+   Time-series data should be split chronologically, not randomly.
+   Random splitting allows future data to inform training, constituting
+   lookahead bias. This must be corrected for production or backtesting use.
+
+2. FEATURE SPARSITY
+   The model uses only opening prices as inputs. This ignores volume,
+   volatility, sentiment, fundamental data, technical indicators, and
+   any qualitative intelligence signals. Predictive power is inherently
+   limited by input richness.
+
+3. SINGLE INDEX SCOPE
+   The model is trained on the DJIA index level, not individual equities.
+   Direct application to individual stock prediction would require
+   retraining on per-ticker data.
+
+4. NO CROSS-VALIDATION
+   The model uses a single train/test split with no k-fold or walk-forward
+   cross-validation. This means performance estimates may be noisy and
+   sensitive to the random seed.
+
+5. STATIC MODEL
+   Once trained, the model does not update with new data. In a live trading
+   context, periodic retraining (rolling window or expanding window) would
+   be necessary to maintain predictive relevance.
+
+6. NORMALIZATION SCOPE
+   The global min/max is computed only over Open_Lag0 and Close, not over
+   all lag features. If lag values fall outside the historical min/max range
+   (possible during extreme market events), normalized inputs could fall
+   outside [0,1], which may degrade prediction quality.
+
+7. ACCURACY METRIC INTERPRETATION
+   "Accuracy = 100 - MAPE" is a convenient shorthand but is not a rigorous
+   financial performance metric. It does not account for directionality
+   (up vs. down prediction), which is often more important than raw price
+   error in trading contexts.
+
+================================================================
+INTEGRATION NOTES (FOR WASDEN WATCH SYSTEM)
+================================================================
+
+If this model is to be incorporated as a signal component within the
+Wasden Watch ensemble architecture, the following adaptations are recommended:
+
+  - Replace random split with a chronological walk-forward validation scheme.
+  - Output a directional signal (Up/Down/Hold) in addition to price prediction,
+    since the ensemble likely needs discrete signals for voting logic.
+  - Normalize using a rolling window min/max (e.g., trailing 252 days) rather
+    than a global min/max, to handle non-stationary price distributions.
+  - Wrap the model in a retraining scheduler (weekly or monthly) to keep
+    weights current.
+  - Consider extending inputs beyond open prices: include volume, RSI,
+    MACD, or Bloomberg fundamental fields as additional features.
+  - Evaluate against a directional accuracy metric (% of days where
+    predicted direction matches actual direction) rather than MAPE alone,
+    as this aligns better with trading decision-making.
+
+================================================================
+END OF DOCUMENT
+================================================================
