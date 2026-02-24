@@ -27,7 +27,7 @@ async def get_positions(
     from app.services.supabase_client import get_supabase
 
     client = get_supabase()
-    query = client.table("positions").select("*")
+    query = client.table("portfolio_positions").select("*")
     if status:
         query = query.eq("status", status)
     result = query.execute()
@@ -44,7 +44,7 @@ async def get_pnl():
 
     client = get_supabase()
     result = (
-        client.table("portfolio_snapshots")
+        client.table("portfolio_daily_snapshot")
         .select("*")
         .order("date", desc=False)
         .limit(30)
@@ -62,5 +62,56 @@ async def get_summary():
     from app.services.supabase_client import get_supabase
 
     client = get_supabase()
-    result = client.table("portfolio_summary").select("*").single().execute()
-    return result.data
+
+    # Latest daily snapshot for top-level values
+    snap = (
+        client.table("portfolio_daily_snapshot")
+        .select("*")
+        .order("date", desc=True)
+        .limit(1)
+        .execute()
+    )
+    snapshot = snap.data[0] if snap.data else {}
+
+    total_value = snapshot.get("total_value", 0)
+    daily_pnl = snapshot.get("daily_pnl", 0)
+    total_pnl = snapshot.get("cumulative_pnl", 0)
+    cash_balance = snapshot.get("cash_balance", 0)
+
+    # All positions for trade statistics
+    pos_result = client.table("portfolio_positions").select("*").execute()
+    positions = pos_result.data or []
+
+    open_positions = sum(1 for p in positions if p.get("status") == "open")
+    closed_positions = sum(1 for p in positions if p.get("status") == "closed")
+    total_trades = len(positions)
+
+    closed = [p for p in positions if p.get("status") == "closed"]
+    winning_trades = sum(1 for p in closed if (p.get("pnl") or 0) > 0)
+    losing_trades = sum(1 for p in closed if (p.get("pnl") or 0) <= 0)
+    win_rate = winning_trades / total_trades if total_trades > 0 else 0
+
+    invested_value = sum(
+        (p.get("current_price") or 0) * (p.get("shares") or 0)
+        for p in positions if p.get("status") == "open"
+    )
+
+    daily_pnl_pct = daily_pnl / total_value if total_value else 0
+    cost_basis = total_value - total_pnl
+    total_pnl_pct = total_pnl / cost_basis if cost_basis > 0 else 0
+
+    return {
+        "total_value": total_value,
+        "cash_balance": cash_balance,
+        "invested_value": invested_value,
+        "daily_pnl": daily_pnl,
+        "daily_pnl_pct": round(daily_pnl_pct, 4),
+        "total_pnl": total_pnl,
+        "total_pnl_pct": round(total_pnl_pct, 4),
+        "win_rate": round(win_rate, 4),
+        "total_trades": total_trades,
+        "winning_trades": winning_trades,
+        "losing_trades": losing_trades,
+        "open_positions": open_positions,
+        "closed_positions": closed_positions,
+    }

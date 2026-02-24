@@ -14,5 +14,7 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
+      - key: FRONTEND_URL
+        sync: false
     healthCheckPath: /api/health
     plan: free

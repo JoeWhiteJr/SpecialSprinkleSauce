@@ -25,15 +25,48 @@ async def list_debates():
         return summaries
 
     from app.services.supabase_client import get_supabase
+    from collections import defaultdict
 
     client = get_supabase()
-    result = (
-        client.table("debates")
-        .select("pipeline_run_id, ticker, timestamp, outcome, rounds, jury_triggered")
-        .order("timestamp", desc=True)
+
+    # Fetch all debate transcript rows ordered by created_at
+    rows = (
+        client.table("debate_transcripts")
+        .select("*")
+        .order("created_at", desc=True)
         .execute()
-    )
-    return result.data
+    ).data or []
+
+    # Group by pipeline_run_id
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for row in rows:
+        groups[row["pipeline_run_id"]].append(row)
+
+    # Check which pipeline runs have jury votes
+    run_ids = list(groups.keys())
+    jury_runs: set[str] = set()
+    if run_ids:
+        jury_rows = (
+            client.table("jury_votes")
+            .select("pipeline_run_id")
+            .in_("pipeline_run_id", run_ids)
+            .execute()
+        ).data or []
+        jury_runs = {r["pipeline_run_id"] for r in jury_rows}
+
+    summaries = []
+    for run_id, round_rows in groups.items():
+        first = round_rows[0]
+        summaries.append({
+            "pipeline_run_id": run_id,
+            "ticker": first["ticker"],
+            "timestamp": first["created_at"],
+            "outcome": first["outcome"] or "disagreement",
+            "rounds": len(round_rows),
+            "jury_triggered": run_id in jury_runs,
+        })
+
+    return summaries
 
 
 @router.get("/{pipeline_run_id}", response_model=DebateTranscript)
@@ -57,16 +90,49 @@ async def get_debate(
     from app.services.supabase_client import get_supabase
 
     client = get_supabase()
-    result = (
-        client.table("debates")
+
+    # Fetch all rounds for this pipeline run
+    rows = (
+        client.table("debate_transcripts")
         .select("*")
         .eq("pipeline_run_id", pipeline_run_id)
-        .single()
+        .order("round_number", desc=False)
         .execute()
-    )
-    if not result.data:
+    ).data or []
+
+    if not rows:
         raise HTTPException(
             status_code=404,
             detail=f"Debate for pipeline run {pipeline_run_id} not found",
         )
-    return result.data
+
+    first = rows[0]
+
+    # Check if jury was triggered for this run
+    jury_rows = (
+        client.table("jury_votes")
+        .select("id")
+        .eq("pipeline_run_id", pipeline_run_id)
+        .limit(1)
+        .execute()
+    ).data or []
+
+    rounds = [
+        {
+            "round_number": r["round_number"],
+            "bull_argument": r["bull_argument"],
+            "bear_argument": r["bear_argument"],
+        }
+        for r in rows
+    ]
+
+    return {
+        "pipeline_run_id": pipeline_run_id,
+        "ticker": first["ticker"],
+        "timestamp": first["created_at"],
+        "rounds": rounds,
+        "outcome": first["outcome"] or "disagreement",
+        "bull_model": "claude-sonnet",
+        "bear_model": "gemini-pro",
+        "jury_triggered": len(jury_rows) > 0,
+    }

@@ -14,10 +14,53 @@ async def get_jury_stats():
         return generate_jury_stats()
 
     from app.services.supabase_client import get_supabase
+    from collections import defaultdict, Counter
 
     client = get_supabase()
-    result = client.table("jury_stats").select("*").single().execute()
-    return result.data
+    result = client.table("jury_votes").select("*").execute()
+    all_votes = result.data or []
+
+    total_votes_cast = len(all_votes)
+    buy_votes = sum(1 for v in all_votes if v.get("vote") == "BUY")
+    sell_votes = sum(1 for v in all_votes if v.get("vote") == "SELL")
+    hold_votes = sum(1 for v in all_votes if v.get("vote") == "HOLD")
+
+    # Group by pipeline_run_id for session-level stats
+    sessions: dict[str, list[dict]] = defaultdict(list)
+    for v in all_votes:
+        sessions[v["pipeline_run_id"]].append(v)
+
+    total_jury_sessions = len(sessions)
+    agreement_count = 0
+    escalation_count = 0
+    majority_sizes: list[int] = []
+
+    for run_id, votes in sessions.items():
+        counts = Counter(v["vote"] for v in votes)
+        sorted_counts = counts.most_common()
+        max_count = sorted_counts[0][1] if sorted_counts else 0
+        majority_sizes.append(max_count)
+
+        if max_count >= 6:
+            agreement_count += 1
+
+        # 5-5 tie: top two counts are equal at 5
+        if len(sorted_counts) >= 2 and sorted_counts[0][1] == 5 and sorted_counts[1][1] == 5:
+            escalation_count += 1
+
+    agreement_rate = agreement_count / total_jury_sessions if total_jury_sessions > 0 else 0
+    average_majority_size = sum(majority_sizes) / len(majority_sizes) if majority_sizes else 0
+
+    return {
+        "total_jury_sessions": total_jury_sessions,
+        "total_votes_cast": total_votes_cast,
+        "buy_votes": buy_votes,
+        "sell_votes": sell_votes,
+        "hold_votes": hold_votes,
+        "agreement_rate": round(agreement_rate, 4),
+        "escalation_count": escalation_count,
+        "average_majority_size": round(average_majority_size, 2),
+    }
 
 
 @router.get("/{pipeline_run_id}", response_model=JuryResult)

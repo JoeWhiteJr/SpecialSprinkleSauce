@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     use_mock_data: bool = True
     supabase_url: str = ""
     supabase_service_key: str = ""
+    frontend_url: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
 
     class Config:

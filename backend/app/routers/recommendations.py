@@ -33,7 +33,7 @@ async def list_recommendations(
     from app.services.supabase_client import get_supabase
 
     client = get_supabase()
-    query = client.table("recommendations").select("*")
+    query = client.table("trade_recommendations").select("*")
     if status:
         query = query.eq("status", status)
     result = query.order("timestamp", desc=True).execute()
@@ -66,7 +66,7 @@ async def review_recommendation(
 
     client = get_supabase()
     result = (
-        client.table("recommendations")
+        client.table("trade_recommendations")
         .update({
             "status": review.action.value,
             "review_note": review.note,

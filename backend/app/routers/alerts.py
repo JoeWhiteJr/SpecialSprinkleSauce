@@ -54,7 +54,7 @@ async def get_loss_streak():
     from app.services.supabase_client import get_supabase
 
     client = get_supabase()
-    result = client.table("loss_streak").select("*").single().execute()
+    result = client.table("consecutive_loss_tracker").select("*").single().execute()
     return result.data
 
 

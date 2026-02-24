@@ -25,7 +25,7 @@ def check_connection() -> bool:
     try:
         client = get_supabase()
         # Simple query to verify connectivity
-        client.table("health_check").select("*").limit(1).execute()
+        client.table("system_settings").select("*").limit(1).execute()
         return True
     except Exception:
         return False
