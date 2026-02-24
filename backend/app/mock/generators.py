@@ -8,7 +8,6 @@ cross-reference correctly across journal entries, jury votes, debates, etc.
 import uuid
 import random
 from datetime import datetime, timedelta
-from typing import Any
 
 # ---------------------------------------------------------------------------
 # Real Bloomberg snapshot prices (Feb 21, 2026)

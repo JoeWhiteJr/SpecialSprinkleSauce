@@ -5,7 +5,6 @@ Creates and manages tickets in the Notion database.
 
 import os
 import requests
-from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -141,7 +140,7 @@ def create_ticket(
 
     if response.status_code == 200:
         data = response.json()
-        print(f"Ticket created successfully!")
+        print("Ticket created successfully!")
         print(f"Page ID: {data.get('id')}")
         print(f"URL: {data.get('url')}")
         return data

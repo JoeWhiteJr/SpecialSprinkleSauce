@@ -3,7 +3,6 @@ Pydantic models for the Wasden Watch trading dashboard.
 Based on the Decision Journal schema from PROJECT_STANDARDS_v2.md.
 """
 
-from datetime import datetime, date
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional

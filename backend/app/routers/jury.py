@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Path, HTTPException
 
 from app.config import settings
-from app.models.schemas import JuryVote, JuryResult, JuryStats
+from app.models.schemas import JuryResult, JuryStats
 from app.mock.generators import generate_journal_entries, generate_jury_stats
 
 router = APIRouter(prefix="/api/jury", tags=["jury"])
