@@ -39,3 +39,9 @@ Thumbs.db
 *.log
 coverage/
 .vercel
+
+# Data files - keep local, not in repo
+data/**/*.csv
+data/**/*.xlsx
+data/**/*.json
+!data/**/.gitkeep
