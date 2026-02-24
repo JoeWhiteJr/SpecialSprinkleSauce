@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: wasden-watch-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: TRADING_MODE
+        sync: false
+      - key: USE_MOCK_DATA
+        value: "true"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+    healthCheckPath: /api/health
+    plan: free
