@@ -33,6 +33,9 @@ CREATE TABLE system_settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL,
   description TEXT,
+  category TEXT DEFAULT 'system',
+  editable BOOLEAN DEFAULT FALSE,
+  requires_approval BOOLEAN DEFAULT TRUE,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   updated_by TEXT
 );

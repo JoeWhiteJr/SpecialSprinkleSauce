@@ -92,14 +92,14 @@ INSERT INTO bloomberg_fundamentals (
 -- 3. SYSTEM SETTINGS
 -- ============================================================
 
-INSERT INTO system_settings (key, value, description) VALUES
-  ('TRADING_MODE', 'paper', 'Current trading mode: paper or live'),
-  ('MAX_POSITION_PCT', '0.12', 'Maximum portfolio allocation per position (12%)'),
-  ('RISK_PER_TRADE_PCT', '0.015', 'Maximum risk per trade as pct of portfolio (1.5%)'),
-  ('MIN_CASH_RESERVE_PCT', '0.10', 'Minimum cash reserve as pct of portfolio (10%)'),
-  ('MAX_CORRELATED_POSITIONS', '3', 'Maximum number of correlated positions allowed'),
-  ('CORRELATION_THRESHOLD', '0.70', 'Correlation coefficient threshold for position grouping'),
-  ('USE_MOCK_DATA', 'true', 'Whether to use mock data instead of live feeds');
+INSERT INTO system_settings (key, value, description, category, editable, requires_approval) VALUES
+  ('TRADING_MODE', 'paper', 'Current trading mode: paper or live', 'system', FALSE, FALSE),
+  ('MAX_POSITION_PCT', '0.12', 'Maximum portfolio allocation per position (12%)', 'risk', FALSE, TRUE),
+  ('RISK_PER_TRADE_PCT', '0.015', 'Maximum risk per trade as pct of portfolio (1.5%)', 'risk', FALSE, TRUE),
+  ('MIN_CASH_RESERVE_PCT', '0.10', 'Minimum cash reserve as pct of portfolio (10%)', 'risk', FALSE, TRUE),
+  ('MAX_CORRELATED_POSITIONS', '3', 'Maximum number of correlated positions allowed', 'risk', FALSE, TRUE),
+  ('CORRELATION_THRESHOLD', '0.70', 'Correlation coefficient threshold for position grouping', 'risk', FALSE, TRUE),
+  ('USE_MOCK_DATA', 'true', 'Whether to use mock data instead of live feeds', 'system', FALSE, FALSE);
 
 -- ============================================================
 -- 4. CONSECUTIVE LOSS TRACKER - Initialize single row
