@@ -10,7 +10,6 @@ Usage:
 """
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
@@ -142,7 +141,7 @@ def cmd_stats(args: argparse.Namespace) -> None:
     if stats.get("date_range"):
         print(f"  Date range:      {stats['date_range']['earliest']} to {stats['date_range']['latest']}")
     else:
-        print(f"  Date range:      (empty — run 'ingest' first)")
+        print("  Date range:      (empty — run 'ingest' first)")
 
     if stats["total_chunks"] == 0:
         print(_color("\n  Vector store is empty. Run 'ingest' to populate.", "yellow"))
