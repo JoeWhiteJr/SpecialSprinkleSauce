@@ -23,6 +23,7 @@ pip-log.txt
 out/
 dist/
 build/
+tsconfig.tsbuildinfo
 
 # IDE
 .vscode/
