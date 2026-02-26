@@ -3,6 +3,8 @@ Alpaca execution client — enforces TRADING_MODE at every call.
 
 Supports paper and live modes with separate API keys.
 Integrates slippage model for paper trading accuracy.
+
+Uses alpaca-py (modern SDK) instead of deprecated alpaca-trade-api.
 """
 
 import logging
@@ -24,12 +26,12 @@ class AlpacaClient:
     """Alpaca trading client with TRADING_MODE enforcement."""
 
     def __init__(self):
-        self._client = None
+        self._trading_client = None
 
     def _get_client(self):
-        """Lazy-init Alpaca REST client with TRADING_MODE enforcement."""
-        if self._client is not None:
-            return self._client
+        """Lazy-init Alpaca client with TRADING_MODE enforcement."""
+        if self._trading_client is not None:
+            return self._trading_client
 
         # TRADING_MODE enforcement
         if settings.trading_mode not in ("paper", "live"):
@@ -41,11 +43,9 @@ class AlpacaClient:
         if settings.trading_mode == "paper":
             api_key = settings.alpaca_paper_api_key
             secret_key = settings.alpaca_paper_secret_key
-            base_url = "https://paper-api.alpaca.markets"
         else:
             api_key = settings.alpaca_live_api_key
             secret_key = settings.alpaca_live_secret_key
-            base_url = "https://api.alpaca.markets"
 
         if not api_key or not secret_key:
             logger.warning(
@@ -55,14 +55,16 @@ class AlpacaClient:
             return None
 
         try:
-            import alpaca_trade_api as tradeapi
-            self._client = tradeapi.REST(
-                api_key, secret_key, base_url, api_version="v2"
+            from alpaca.trading.client import TradingClient
+            self._trading_client = TradingClient(
+                api_key,
+                secret_key,
+                paper=settings.trading_mode == "paper",
             )
             logger.info(f"Alpaca client initialized (mode={settings.trading_mode})")
-            return self._client
+            return self._trading_client
         except ImportError:
-            logger.warning("alpaca-trade-api not installed. Using mock mode.")
+            logger.warning("alpaca-py not installed. Using mock mode.")
             return None
 
     def submit_order(
@@ -100,13 +102,17 @@ class AlpacaClient:
             return order
 
         try:
-            alpaca_order = client.submit_order(
+            from alpaca.trading.requests import MarketOrderRequest
+            from alpaca.trading.enums import OrderSide, TimeInForce
+
+            side = OrderSide.BUY if order.side == "buy" else OrderSide.SELL
+            req = MarketOrderRequest(
                 symbol=order.ticker,
                 qty=order.quantity,
-                side=order.side,
-                type="market",
-                time_in_force="day",
+                side=side,
+                time_in_force=TimeInForce.DAY,
             )
+            alpaca_order = client.submit_order(req)
             order.alpaca_order_id = str(alpaca_order.id)
             order = transition_order(order, OrderState.PENDING, "submitted to Alpaca")
             logger.info(
@@ -126,15 +132,16 @@ class AlpacaClient:
             return None
 
         try:
-            order = client.get_order(alpaca_order_id)
+            from uuid import UUID as _UUID
+            alpaca_order = client.get_order_by_id(_UUID(alpaca_order_id))
             return {
-                "id": str(order.id),
-                "status": order.status,
-                "filled_qty": int(order.filled_qty or 0),
-                "filled_avg_price": float(order.filled_avg_price or 0),
-                "symbol": order.symbol,
-                "side": order.side,
-                "qty": int(order.qty),
+                "id": str(alpaca_order.id),
+                "status": str(alpaca_order.status),
+                "filled_qty": int(alpaca_order.filled_qty or 0),
+                "filled_avg_price": float(alpaca_order.filled_avg_price or 0),
+                "symbol": alpaca_order.symbol,
+                "side": str(alpaca_order.side),
+                "qty": int(alpaca_order.qty),
             }
         except Exception as e:
             logger.error(f"Failed to get Alpaca order status: {e}")
@@ -163,7 +170,7 @@ class AlpacaClient:
                 "buying_power": float(account.buying_power),
                 "equity": float(account.equity),
                 "trading_mode": settings.trading_mode,
-                "status": account.status,
+                "status": str(account.status),
                 "simulated": False,
             }
         except Exception as e:
@@ -177,7 +184,7 @@ class AlpacaClient:
             return []
 
         try:
-            positions = client.list_positions()
+            positions = client.get_all_positions()
             return [
                 {
                     "ticker": p.symbol,
@@ -187,7 +194,7 @@ class AlpacaClient:
                     "current_price": float(p.current_price),
                     "unrealized_pl": float(p.unrealized_pl),
                     "unrealized_plpc": float(p.unrealized_plpc),
-                    "side": p.side,
+                    "side": str(p.side),
                 }
                 for p in positions
             ]
