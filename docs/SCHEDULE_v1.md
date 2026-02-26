@@ -1,7 +1,9 @@
 # SCHEDULE_v1.md — Wasden Watch Week-by-Week Development Schedule
-> **Version:** 1.0 | **Last Updated:** February 23, 2026
+> **Version:** 1.1 | **Last Updated:** February 25, 2026
 > **Target:** Operable (paper trading, 60–80% backtested win rate) by end of May 2026
 > **Note:** Weekly sync required. Daily check-in recommended.
+
+> **Server Timeline:** Building and developing locally for Weeks 2–4. A dedicated 4TB server is being set up separately and will be integrated in Week 5+ for large dataset storage, model training, and heavy compute workloads.
 
 ---
 
@@ -21,24 +23,43 @@
 ## WEEK 1 — Project Foundation
 **Goal:** Environment up, repo organized, all data assets confirmed, team fully aligned
 
-- [ ] Set up Notion workspace and project board (tickets, weekly milestones, sprint view)
-- [ ] Create Notion ticket template (description, acceptance criteria, owner, week target)
-- [ ] Audit all 4 project documents — confirm accuracy before any code is written
-- [ ] Set up AWS EC2 instance (backend hosting)
-- [ ] Set up Supabase project — configure PostgreSQL + pgvector extension
-- [ ] Set up all required API accounts: Alpaca (paper), Finnhub, NewsAPI
-- [ ] Configure `.env.example` with all required key placeholders — never commit `.env`
-- [ ] Clone Financial Forge repo — confirm local dev environment running
-- [ ] Pull Bloomberg data for full watchlist (all 11 tickers, all 25 metrics) — update Feb 21 snapshot
-- [ ] Export Bloomberg data to CSV — store in `data/bloomberg/` with date-stamp filename
-- [ ] Verify Emery's 10-year OHLCV dataset — confirm format, row count, date range, ticker coverage
-- [ ] Confirm Dow Jones 1928–2009 CSV loads correctly — verify OHLCV + adjusted close columns
-- [ ] Inventory all Wasden Weekender PDFs — consistent naming convention, confirm total count
-- [ ] Review Financial Forge GitHub repo — document what to keep vs. rebuild
-- [ ] Set up GitHub Actions CI/CD baseline (lint + test on push to main)
-- [ ] Read both `DowSmall1a.Rmd` and `DowLarger1a.Rmd` — understand architecture before porting
-- [ ] Set up Google Voice number for Signal bot notifications
-- [ ] Weekly sync: review all documents, agree on Week 1 completion definition
+- [x] Set up Notion workspace and project board (tickets, weekly milestones, sprint view)
+- [x] Create Notion ticket template (description, acceptance criteria, owner, week target)
+- [x] Audit all 4 project documents — confirm accuracy before any code is written
+- [x] Set up backend hosting (Render — replaced AWS EC2)
+- [x] Set up Supabase project — configure PostgreSQL + pgvector extension
+- [x] Set up all required API accounts: Alpaca (paper), Finnhub, NewsAPI
+- [x] Configure `.env.example` with all required key placeholders — never commit `.env`
+- [x] Clone Financial Forge repo — confirm local dev environment running
+- [x] Pull Bloomberg data for full watchlist (all 11 tickers, all 25 metrics) — update Feb 21 snapshot
+- [x] Export Bloomberg data to CSV — store in `data/bloomberg/` with date-stamp filename
+- [x] Verify Emery's 10-year OHLCV dataset — confirm format, row count, date range, ticker coverage
+- [x] Confirm Dow Jones 1928–2009 CSV loads correctly — verify OHLCV + adjusted close columns
+- [x] Inventory all Wasden Weekender PDFs — consistent naming convention, confirm total count
+- [x] Review Financial Forge GitHub repo — document what to keep vs. rebuild
+- [x] Set up GitHub Actions CI/CD baseline (lint + test on push to main)
+- [x] Read both `DowSmall1a.Rmd` and `DowLarger1a.Rmd` — understand architecture before porting
+- [x] Set up Google Voice number for Signal bot notifications
+- [x] Weekly sync: review all documents, agree on Week 1 completion definition
+
+### Week 1 Completion Notes (Feb 25, 2026)
+
+**Deviations from original plan:**
+- **AWS EC2 replaced by Render** for backend hosting — simpler auto-deploy from GitHub, free tier sufficient for development phase
+- **Vercel added for frontend hosting** — auto-deploys on push to `main`, zero-config for Next.js
+- **Supabase migrations and seed data** created and applied — database schema operational with initial seed data
+
+**What was deployed:**
+- Frontend live at `https://special-sprinkle-sauce.vercel.app`
+- Backend live at `https://specialsprinklesauce.onrender.com`
+- Supabase PostgreSQL configured and seeded
+- GitHub repo structured with `frontend/`, `backend/`, `database/` directories
+- `.env.example` configured with all required placeholders
+- CI/CD: pushes to `main` auto-deploy to both Vercel (frontend) and Render (backend)
+
+**Deferred to later weeks:**
+- 4TB dedicated server setup — targeting Week 5+ for large dataset storage and model training
+- Large training datasets will remain local until server is online
 
 ---
 
