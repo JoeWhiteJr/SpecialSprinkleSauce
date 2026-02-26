@@ -7,3 +7,12 @@ supabase==2.12.0
 httpx==0.28.1
 openpyxl==3.1.5
 python-multipart==0.0.18
+
+# Wasden Watch RAG pipeline
+pymupdf==1.25.3
+chromadb==0.6.3
+anthropic==0.43.0
+google-generativeai==0.8.4
+tiktoken==0.9.0
+sentence-transformers==3.4.1
+colorama==0.4.6
