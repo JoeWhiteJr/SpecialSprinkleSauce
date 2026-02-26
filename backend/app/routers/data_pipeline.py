@@ -3,7 +3,6 @@
 import logging
 from datetime import date
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel

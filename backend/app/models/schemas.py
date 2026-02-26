@@ -5,7 +5,7 @@ Based on the Decision Journal schema from PROJECT_STANDARDS_v2.md.
 
 from enum import Enum
 from pydantic import BaseModel, Field
-from datetime import date, datetime
+from datetime import date
 from typing import Optional
 
 
