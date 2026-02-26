@@ -1,7 +1,10 @@
 """Sentiment model — Finnhub + NewsAPI sentiment aggregation."""
 
+import json
 import logging
-from datetime import datetime, timedelta
+import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from .mock_scores import get_mock_scores
 
@@ -10,6 +13,9 @@ logger = logging.getLogger("wasden_watch.quant_models.sentiment")
 # Sentiment weights
 FINNHUB_WEIGHT = 0.6
 NEWSAPI_WEIGHT = 0.4
+
+# Rate limiting: minimum seconds between API calls per source
+_MIN_CALL_INTERVAL_SECS = 1.0
 
 # Positive/negative keyword lists for NewsAPI headline scoring
 POSITIVE_KEYWORDS = [
@@ -46,6 +52,27 @@ class SentimentModel:
         self._finnhub_api_key = finnhub_api_key
         self._newsapi_api_key = newsapi_api_key
         self._version = "1.0.0"
+        # Rate limiting: track last call time per source
+        self._last_finnhub_call: float = 0.0
+        self._last_newsapi_call: float = 0.0
+
+    def _rate_limit(self, source: str) -> None:
+        """Enforce minimum interval between API calls to avoid hammering."""
+        now = time.monotonic()
+        if source == "finnhub":
+            elapsed = now - self._last_finnhub_call
+            if elapsed < _MIN_CALL_INTERVAL_SECS:
+                sleep_time = _MIN_CALL_INTERVAL_SECS - elapsed
+                logger.debug(f"Rate limiting Finnhub: sleeping {sleep_time:.2f}s")
+                time.sleep(sleep_time)
+            self._last_finnhub_call = time.monotonic()
+        elif source == "newsapi":
+            elapsed = now - self._last_newsapi_call
+            if elapsed < _MIN_CALL_INTERVAL_SECS:
+                sleep_time = _MIN_CALL_INTERVAL_SECS - elapsed
+                logger.debug(f"Rate limiting NewsAPI: sleeping {sleep_time:.2f}s")
+                time.sleep(sleep_time)
+            self._last_newsapi_call = time.monotonic()
 
     def fetch_finnhub_sentiment(self, ticker: str) -> float | None:
         """Fetch sentiment from Finnhub news sentiment endpoint.
@@ -60,10 +87,12 @@ class SentimentModel:
             logger.info("Finnhub API key not set, skipping")
             return None
 
+        self._rate_limit("finnhub")
+
         try:
             import finnhub
             client = finnhub.Client(api_key=self._finnhub_api_key)
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             start = end - timedelta(days=7)
             news = client.company_news(
                 ticker,
@@ -101,10 +130,12 @@ class SentimentModel:
             logger.info("NewsAPI key not set, skipping")
             return None
 
+        self._rate_limit("newsapi")
+
         try:
             from newsapi import NewsApiClient
             api = NewsApiClient(api_key=self._newsapi_api_key)
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             start = end - timedelta(days=7)
             response = api.get_everything(
                 q=ticker,
@@ -163,6 +194,46 @@ class SentimentModel:
     def predict_mock(self, ticker: str) -> float:
         """Return mock prediction from MOCK_QUANT_SCORES."""
         return get_mock_scores(ticker)["sentiment"]
+
+    def save(self, path: str | Path) -> None:
+        """Save model configuration and weights to disk.
+
+        Sentiment model has no trained state, but persists its config
+        (API source weights, keyword lists) so the manifest is reproducible.
+        """
+        path = Path(path)
+        config = {
+            "version": self._version,
+            "finnhub_weight": FINNHUB_WEIGHT,
+            "newsapi_weight": NEWSAPI_WEIGHT,
+            "positive_keywords": POSITIVE_KEYWORDS,
+            "negative_keywords": NEGATIVE_KEYWORDS,
+            "has_finnhub_key": bool(self._finnhub_api_key),
+            "has_newsapi_key": bool(self._newsapi_api_key),
+        }
+        try:
+            with open(path, "w") as f:
+                json.dump(config, f, indent=2)
+            logger.info(f"Sentiment config saved to {path}")
+        except Exception as e:
+            logger.error(f"Failed to save sentiment config: {e}")
+
+    def load(self, path: str | Path) -> None:
+        """Load model configuration from disk.
+
+        Restores keyword lists and weights. API keys must still be
+        provided via constructor (never persisted to disk).
+        """
+        path = Path(path)
+        try:
+            with open(path) as f:
+                config = json.load(f)
+            self._version = config.get("version", self._version)
+            logger.info(f"Sentiment config loaded from {path}")
+        except FileNotFoundError:
+            logger.error(f"Config file not found: {path}")
+        except Exception as e:
+            logger.error(f"Failed to load sentiment config: {e}")
 
     def get_manifest(self) -> dict:
         """Return model manifest per PROJECT_STANDARDS Section 2."""
