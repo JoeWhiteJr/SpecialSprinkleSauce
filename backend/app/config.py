@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     # NewsAPI key
     newsapi_api_key: str = ""
 
+    # MLflow tracking (local file store by default, no server required)
+    mlflow_tracking_uri: str = "mlruns"
+    mlflow_experiment_name: str = "wasden-watch-quant"
+
     class Config:
         env_file = ".env"
         extra = "ignore"

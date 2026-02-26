@@ -30,3 +30,6 @@ newsapi-python>=0.2.7
 
 # Week 7 decision pipeline
 langgraph>=0.2.0
+
+# MLflow experiment tracking and model registry
+mlflow>=2.10.0
