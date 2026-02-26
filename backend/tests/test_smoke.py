@@ -1,6 +1,6 @@
 """Smoke tests — verify app starts and all routers register.
 
-Tests: app startup, 14 routers, risk constants, separation enforcement.
+Tests: app startup, 15 routers, risk constants, separation enforcement.
 """
 
 import os
@@ -17,8 +17,8 @@ def test_app_starts():
     assert app.title == "Wasden Watch Trading Dashboard API"
 
 
-def test_14_routers_registered():
-    """All 14 API routers are registered."""
+def test_15_routers_registered():
+    """All 15 API routers are registered."""
     prefixes = set()
     for route in app.routes:
         if hasattr(route, "path"):
@@ -29,7 +29,8 @@ def test_14_routers_registered():
     expected = {
         "health", "portfolio", "recommendations", "journal",
         "debates", "jury", "overrides", "alerts", "bias",
-        "screening", "settings", "data", "risk", "execution",
+        "screening", "settings", "data", "wasden-watch",
+        "risk", "execution",
     }
     assert prefixes == expected, f"Missing: {expected - prefixes}, Extra: {prefixes - expected}"
 
