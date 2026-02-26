@@ -78,18 +78,12 @@ def compute_freshness(pull_date: date, reference_date: Optional[date] = None) ->
     RECENT: 1-7 days -- full weight, flagged in logs
     STALE: 7-30 days -- weight reduced by 50%
     EXPIRED: >30 days -- excluded from live decisions
-    """
-    ref = reference_date or date.today()
-    age_days = (ref - pull_date).days
 
-    if age_days < 1:
-        return "FRESH"
-    elif age_days <= RECENT_DAYS:
-        return "RECENT"
-    elif age_days <= STALE_DAYS:
-        return "STALE"
-    else:
-        return "EXPIRED"
+    Delegates to shared freshness module and returns .value string
+    for backward compatibility with existing callers.
+    """
+    from app.services.freshness import compute_freshness as _compute
+    return _compute(pull_date, reference_date).value
 
 
 # ---------------------------------------------------------------------------
