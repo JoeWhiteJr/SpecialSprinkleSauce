@@ -41,16 +41,15 @@ Thumbs.db
 coverage/
 .vercel
 
-# Local working folder - not pushed to repo (except Wasden Weekender corpus)
-local/*
-!local/Wasden_Weekender_PDF/
-local/Wasden_Weekender_PDF/*:Zone.Identifier
+# Local working folder - not pushed to repo
+local/
 
 # ChromaDB persistent storage (generated, not committed)
 backend/local/
 
-# Data files - keep local, not in repo
+# Data files - keep local, not in repo (except wasden_corpus which is tracked)
 data/**/*.csv
 data/**/*.xlsx
 data/**/*.json
 !data/**/.gitkeep
+!data/wasden_corpus/**

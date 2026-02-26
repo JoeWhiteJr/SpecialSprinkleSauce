@@ -73,7 +73,7 @@
 - [x] Build `TRADING_MODE` env var check — halt immediately if unset or invalid
 - [x] Audit both datasets for survivorship bias scope — document findings
 - [x] Document all Bloomberg known issues: Piotroski `#N/A`, TSM trailing P/E, AAPL ROC
-- [ ] Tag all Wasden Weekender PDFs with metadata (date, topics, sectors covered)
+- [x] Tag all Wasden Weekender PDFs with metadata (date, topics, sectors covered) *(Jared — `data/wasden_corpus/newsletter_metadata.json`, 28 PDFs tagged)*
 - [x] Begin `wasden_philosophy.md` — document 5 buckets, key principles, ratio theory in full
 - [ ] Weekly sync: confirm all datasets accessible in Supabase, schema validated against `PROJECT_STANDARDS_v2.md`
 

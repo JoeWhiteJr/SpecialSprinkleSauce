@@ -14,6 +14,9 @@ Wasden Watch is an automated trading system dashboard. This repo contains:
 4. **5-5 jury ties** always escalate to human. Never auto-resolve.
 5. Never hardcode API keys or credentials.
 
+## Schedule Auditing Rule
+When reviewing `docs/SCHEDULE_v1.md` or reporting task completion status, **always cross-reference checklist items against actual files in the repo before reporting anything as incomplete.** Search all directories — including `data/`, `docs/`, `models/`, and `database/` — not just `src/` and `backend/`. Never mark an item as "open" or "not done" without first verifying the artifact doesn't already exist.
+
 ## Running
 ```bash
 # Frontend
