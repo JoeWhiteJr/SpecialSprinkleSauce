@@ -549,3 +549,141 @@ class PriceHistoryStats(BaseModel):
     date_range_start: Optional[date] = None
     date_range_end: Optional[date] = None
     survivorship_audited_count: int = 0
+
+
+# ---------------------------------------------------------------------------
+# Screening Pipeline Detail Schemas (Week 3)
+# ---------------------------------------------------------------------------
+
+class DataSource(str, Enum):
+    SUPABASE = "supabase"
+    FINNHUB = "finnhub"
+    YAHOO = "yahoo"
+
+
+class DataSourceResult(BaseModel):
+    """Result from a single data source fetch."""
+    field: str
+    value: Optional[float] = None
+    source: DataSource
+
+
+class PiotroskiSignal(BaseModel):
+    """A single Piotroski binary signal."""
+    name: str
+    value: int = Field(..., ge=0, le=1)
+    data_available: bool
+    detail: str
+
+
+class PiotroskiScore(BaseModel):
+    """Full Piotroski F-Score result."""
+    ticker: str
+    score: int
+    max_possible: int
+    ratio: float
+    passes_threshold: bool
+    signals: list[PiotroskiSignal]
+    data_available: bool
+
+
+class Tier1Result(BaseModel):
+    """Per-ticker Tier 1 (liquidity) result."""
+    ticker: str
+    passed: bool
+    fail_reasons: list[str] = Field(default_factory=list)
+    metrics: dict = Field(default_factory=dict)
+
+
+class Tier2Result(BaseModel):
+    """Per-ticker Tier 2 (Sprinkle Sauce) result."""
+    ticker: str
+    passed: bool
+    fail_reasons: list[str] = Field(default_factory=list)
+    metrics: dict = Field(default_factory=dict)
+    piotroski: Optional[dict] = None
+
+
+class ScreeningPipelineResult(BaseModel):
+    """Full screening pipeline result with per-tier breakdowns."""
+    id: str
+    timestamp: str
+    stages: list[ScreeningStage]
+    final_candidates: list[str]
+    pipeline_run_ids: list[str] = Field(default_factory=list)
+    duration_seconds: float
+    model_used: str = "claude-haiku"
+    tier_results: dict = Field(default_factory=dict)
+    data_freshness_summary: dict = Field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# Risk Engine Schemas (Week 8)
+# ---------------------------------------------------------------------------
+
+class OrderState(str, Enum):
+    SUBMITTED = "submitted"
+    PENDING = "pending"
+    FILLED = "filled"
+    PARTIALLY_FILLED = "partially_filled"
+    REJECTED = "rejected"
+    EXPIRED = "expired"
+    CANCELLED = "cancelled"
+
+
+class OrderRecord(BaseModel):
+    """Order record for API responses."""
+    id: str
+    ticker: str
+    side: str
+    quantity: int
+    price: float
+    state: OrderState
+    alpaca_order_id: Optional[str] = None
+    fill_price: Optional[float] = None
+    filled_quantity: int = 0
+    slippage: Optional[float] = None
+    risk_check_result: Optional[dict] = None
+    pre_trade_result: Optional[dict] = None
+    state_history: list[dict] = Field(default_factory=list)
+    created_at: str = ""
+    updated_at: str = ""
+
+
+class RiskCheckDetail(BaseModel):
+    """Result of a single risk check."""
+    check_name: str
+    passed: bool
+    detail: str
+    value: Optional[float] = None
+    threshold: Optional[float] = None
+
+
+class CircuitBreakerStatus(BaseModel):
+    """Circuit breaker state for API responses."""
+    active: bool = False
+    triggered_at: Optional[str] = None
+    spy_5day_return: Optional[float] = None
+    actions_taken: list[str] = Field(default_factory=list)
+    resolved_at: Optional[str] = None
+    resolved_by: Optional[str] = None
+
+
+class StressTestScenario(BaseModel):
+    """A single stress test scenario result."""
+    scenario_name: str
+    description: str
+    period: str
+    spy_drawdown: float
+    duration_days: int
+    portfolio_loss: float
+    portfolio_loss_pct: float
+    position_impacts: list[dict] = Field(default_factory=list)
+    surviving: bool = True
+
+
+class StressTestReport(BaseModel):
+    """Full stress test report across all scenarios."""
+    scenarios: list[StressTestScenario]
+    portfolio_value: float
+    positions_count: int

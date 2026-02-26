@@ -17,6 +17,15 @@ class Settings(BaseSettings):
     frontend_url: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Alpaca API keys (never hardcode — loaded from .env)
+    alpaca_paper_api_key: str = ""
+    alpaca_paper_secret_key: str = ""
+    alpaca_live_api_key: str = ""
+    alpaca_live_secret_key: str = ""
+
+    # Finnhub API key
+    finnhub_api_key: str = ""
+
     class Config:
         env_file = ".env"
         extra = "ignore"
