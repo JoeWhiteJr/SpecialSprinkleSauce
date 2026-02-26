@@ -26,8 +26,8 @@ class WasdenWatchSettings(BaseSettings):
         return [k for k in [self.gemini_api_key_1, self.gemini_api_key_2] if k]
 
     # Paths (resolved from project root)
-    pdf_corpus_path: str = str(_PROJECT_ROOT / "local" / "Wasden_Weekender_PDF")
-    metadata_path: str = str(_PROJECT_ROOT / "local" / "Wasden_Weekender_PDF" / "newsletter_metadata.json")
+    pdf_corpus_path: str = str(_PROJECT_ROOT / "data" / "wasden_corpus")
+    metadata_path: str = str(_PROJECT_ROOT / "data" / "wasden_corpus" / "newsletter_metadata.json")
     chroma_persist_dir: str = str(_PROJECT_ROOT / "local" / "chroma_wasden_watch")
 
     # Chunking

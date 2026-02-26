@@ -4,7 +4,7 @@ You are building the Wasden Watch RAG (Retrieval-Augmented Generation) pipeline 
 
 ## IMPORTANT CONTEXT
 
-- The PDF corpus is already in the repo at `local/Wasden_Weekender_PDF/` (28 PDFs + `newsletter_metadata.json`)
+- The PDF corpus is already in the repo at `data/wasden_corpus/` (28 PDFs + `newsletter_metadata.json`)
 - The backend is FastAPI at `backend/app/main.py` — it already has 12 routers registered
 - The wasden_watch module directory exists at `src/intelligence/wasden_watch/` (currently empty except `.gitkeep`)
 - Environment variables for API keys are in `.env` at the project root — there are TWO keys for each provider (for round-robin rotation to double rate limits):
@@ -111,8 +111,8 @@ class WasdenWatchSettings(BaseSettings):
         return [k for k in [self.gemini_api_key_1, self.gemini_api_key_2] if k]
 
     # Paths
-    pdf_corpus_path: str = "local/Wasden_Weekender_PDF"
-    metadata_path: str = "local/Wasden_Weekender_PDF/newsletter_metadata.json"
+    pdf_corpus_path: str = "data/wasden_corpus"
+    metadata_path: str = "data/wasden_corpus/newsletter_metadata.json"
     chroma_persist_dir: str = "local/chroma_wasden_watch"
 
     # Chunking
