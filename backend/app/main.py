@@ -1,4 +1,5 @@
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -17,6 +18,7 @@ from app.routers import (
     bias,
     screening,
     settings as settings_router,
+    data_pipeline,
 )
 
 logger = logging.getLogger("wasden_watch")
@@ -40,6 +42,15 @@ async def lifespan(app: FastAPI):
     else:
         logger.info(f"Supabase URL  = {settings.supabase_url[:30]}..." if settings.supabase_url else "Supabase URL  = NOT SET")
     logger.info("=" * 60)
+
+    # TRADING_MODE hardening — halt if invalid
+    if settings.trading_mode not in ("paper", "live"):
+        logger.critical(
+            f"FATAL: TRADING_MODE='{settings.trading_mode}' is invalid. "
+            "Must be 'paper' or 'live'. Shutting down."
+        )
+        sys.exit(1)
+
     yield
     logger.info("Wasden Watch backend shutting down.")
 
@@ -64,7 +75,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register all 11 routers
+# Register all 12 routers
 app.include_router(health.router)
 app.include_router(portfolio.router)
 app.include_router(recommendations.router)
@@ -76,3 +87,4 @@ app.include_router(alerts.router)
 app.include_router(bias.router)
 app.include_router(screening.router)
 app.include_router(settings_router.router)
+app.include_router(data_pipeline.router)
