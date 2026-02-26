@@ -27,6 +27,22 @@ cd backend && uvicorn app.main:app --reload   # http://localhost:8000
 - Frontend: Vercel (root dir: `frontend/`)
 - Backend: Render (root dir: `backend/`)
 
+## Git Workflow Commands
+Custom slash commands available in `.claude/commands/`:
+
+| Command | Description |
+|---------|-------------|
+| `/ship` | Full pipeline — rebase, test, commit, push, create PR |
+| `/rebase-check` | Rebase against main + resolve conflicts |
+| `/smart-commit` | Review diff, generate commit message, commit |
+| `/create-pr` | Push branch + open PR with auto-generated summary |
+| `/cleanup` | Delete branch after PR is merged |
+| `/git-status` | Quick overview of branch, changes, and remote status |
+| `/branch` | Create a new feature branch from latest main |
+| `/diff-summary` | Summarize all branch changes vs main |
+
+When the user finishes coding, suggest `/ship` to handle the full git workflow. For individual steps, suggest the specific command.
+
 ## Key Docs
 - `docs/PROJECT_STANDARDS_v2.md` — Decision journal schema, risk constants, data freshness grades
 - `docs/CLAUDE_v2.md` — Protected components, TRADING_MODE rules
