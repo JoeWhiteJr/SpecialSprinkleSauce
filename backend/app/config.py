@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # Finnhub API key
     finnhub_api_key: str = ""
 
+    # NewsAPI key
+    newsapi_api_key: str = ""
+
     class Config:
         env_file = ".env"
         extra = "ignore"

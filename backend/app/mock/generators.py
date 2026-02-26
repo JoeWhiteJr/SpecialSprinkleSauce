@@ -1240,3 +1240,106 @@ def generate_account_mock() -> dict:
         "status": "ACTIVE",
         "simulated": True,
     }
+
+
+# ---------------------------------------------------------------------------
+# Quant Model Mock Generators (Week 5)
+# ---------------------------------------------------------------------------
+
+def generate_quant_scores_mock(ticker: str) -> dict:
+    """Mock quant scores for a single ticker."""
+    from src.intelligence.quant_models.mock_scores import get_mock_scores
+    import statistics
+
+    scores = get_mock_scores(ticker.upper())
+    all_vals = list(scores.values())
+    composite = statistics.mean(all_vals)
+    std_dev = statistics.stdev(all_vals) if len(all_vals) > 1 else 0.0
+
+    return {
+        "xgboost": scores["xgboost"],
+        "elastic_net": scores["elastic_net"],
+        "arima": scores["arima"],
+        "sentiment": scores["sentiment"],
+        "composite": round(composite, 4),
+        "std_dev": round(std_dev, 4),
+        "high_disagreement_flag": std_dev > 0.5,
+    }
+
+
+def generate_quant_status_mock() -> dict:
+    """Mock quant model status with manifests."""
+    return {
+        "models": {
+            "xgboost": {
+                "model_name": "XGBoostDirectionModel",
+                "version": "1.0.0",
+                "model_type": "classification",
+                "target": "5-day forward return direction",
+                "output_range": [0.0, 1.0],
+                "parameters": {"n_estimators": 200, "max_depth": 6, "learning_rate": 0.1},
+                "trained": False,
+                "survivorship_bias_audited": False,
+            },
+            "elastic_net": {
+                "model_name": "ElasticNetDirectionModel",
+                "version": "1.0.0",
+                "model_type": "regression_sigmoid",
+                "target": "5-day forward return direction",
+                "output_range": [0.0, 1.0],
+                "parameters": {"alpha": 0.1, "l1_ratio": 0.5},
+                "trained": False,
+                "survivorship_bias_audited": False,
+            },
+            "arima": {
+                "model_name": "ARIMAModel",
+                "version": "1.0.0",
+                "model_type": "time_series",
+                "target": "5-day forward close price (directional confidence)",
+                "output_range": [0.0, 1.0],
+                "parameters": {"order": [5, 1, 0]},
+                "trained": False,
+                "survivorship_bias_audited": False,
+            },
+            "sentiment": {
+                "model_name": "SentimentModel",
+                "version": "1.0.0",
+                "model_type": "sentiment_aggregation",
+                "target": "News sentiment (bullish probability)",
+                "output_range": [0.0, 1.0],
+                "parameters": {"finnhub_weight": 0.6, "newsapi_weight": 0.4},
+                "trained": True,
+                "survivorship_bias_audited": False,
+            },
+        },
+        "use_mock_data": True,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Pipeline Mock Generators (Week 7)
+# ---------------------------------------------------------------------------
+
+def generate_pipeline_run_mock(ticker: str = "NVDA") -> dict:
+    """Mock a single pipeline run result."""
+    from src.pipeline.mock_pipeline import MockDecisionPipeline
+
+    pipeline = MockDecisionPipeline()
+    price = BLOOMBERG_PRICES.get(ticker.upper(), 100.0)
+    result = pipeline.run(ticker, price)
+    # Add pipeline_runs-table compatible fields
+    result["started_at"] = result.get("timestamp", _ts())
+    result["completed_at"] = result.get("timestamp", _ts())
+    result["status"] = "vetoed" if result.get("final_decision", {}).get("action") == "BLOCKED" and "VETO" in result.get("final_decision", {}).get("reason", "") else "completed"
+    result["node_journal"] = result.get("node_journal", [])
+    return result
+
+
+def generate_pipeline_runs_mock() -> list[dict]:
+    """Mock list of recent pipeline runs."""
+    runs = []
+    for ticker in PILOT_TICKERS:
+        run = generate_pipeline_run_mock(ticker)
+        run["id"] = PIPELINE_RUN_IDS.get(f"{ticker}_1", str(uuid.uuid4()))
+        runs.append(run)
+    return runs
