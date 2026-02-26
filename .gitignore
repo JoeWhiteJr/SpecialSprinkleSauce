@@ -46,6 +46,9 @@ local/*
 !local/Wasden_Weekender_PDF/
 local/Wasden_Weekender_PDF/*:Zone.Identifier
 
+# ChromaDB persistent storage (generated, not committed)
+backend/local/
+
 # Data files - keep local, not in repo
 data/**/*.csv
 data/**/*.xlsx
