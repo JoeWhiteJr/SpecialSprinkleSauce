@@ -18,7 +18,7 @@ Before starting any task, read in order:
 
 ## Protected Components — Human Approval Required Before ANY Change
 
-Both Jared and Joe must provide written approval in Notion before a single line changes in these components.
+Both Jared and Joe must provide written approval before a single line changes in these components.
 
 | Component | Why Protected |
 |-----------|--------------|
@@ -86,7 +86,7 @@ Both Jared and Joe must provide written approval in Notion before a single line 
 | Backend Hosting | Cloud VPS TBD | DigitalOcean or AWS Lightsail, decide before Phase 3 |
 | CI/CD | GitHub Actions | |
 | Notifications | Signal primary, Telegram backup | Google Voice number for bot NOT yet set up. Action item. |
-| Ticketing | Notion | Every feature gets a ticket before any code is written |
+| Ticketing | GitHub Issues | Every feature gets a ticket before any code is written |
 
 ---
 

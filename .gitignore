@@ -41,6 +41,9 @@ Thumbs.db
 coverage/
 .vercel
 
+# Local working folder - not pushed to repo
+local/
+
 # Data files - keep local, not in repo
 data/**/*.csv
 data/**/*.xlsx

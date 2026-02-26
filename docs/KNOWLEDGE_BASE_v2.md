@@ -37,7 +37,7 @@
 29. [Design Decisions Log](#29-design-decisions-log)
 30. [Critical Problems & Resolutions](#30-critical-problems--resolutions)
 31. [Development Phases & Schedule](#31-development-phases--schedule)
-32. [Team Structure & Roles](#32-team-structure--roles)
+32. [Team Structure](#32-team-structure)
 33. [Infrastructure & Tooling](#33-infrastructure--tooling)
 34. [Feedback from Collaborators](#34-feedback-from-collaborators)
 35. [Joe's Goals & Vision](#35-joes-goals--vision)
@@ -1244,7 +1244,7 @@ Costco at 55× earnings vs. historical ~20×, growing slower than historically. 
 
 ### Problem 1: Wasden Veto — Single Regime Risk
 **Status: WATCH CLOSELY**
-RAG built on ~30 PDFs from 2022 bear-to-recovery regime. Build regime detection before Wasden veto is applied. Design ticket in Notion.
+RAG built on ~30 PDFs from 2022 bear-to-recovery regime. Build regime detection before Wasden veto is applied.
 
 ### Problem 2: Survivorship Bias in All Datasets
 **Status: WATCH CLOSELY**
@@ -1296,19 +1296,19 @@ See `SCHEDULE_v1.md` for full week-by-week breakdown.
 
 ---
 
-## 32. Team Structure & Roles
+## 32. Team Structure
 
-| Role | Person | Core Responsibilities |
-|------|--------|-----------------------|
-| PM / QA / Wasden Expert | Jared | Notion tickets, testing, Wasden prompt calibration, Bloomberg pulls, trading rules, weekly review |
-| Technical Lead / Data | Joe | Python infrastructure, data pipeline, model training, API integrations, R→Python model porting |
-| AI Agent Teams | Claude Code | Dev, Review, Security, QA — two-team model, 24/7 |
-| External Technical Advisor | Emery | Data assets, architecture feedback |
-| Investment Mentor | Cary Wasden | Philosophy, Weekenders, 5-bucket framework |
-| Statistical Advisor | Dr. Wyatt Miller | Neural network framework, causal analysis methodology |
+| Person | Notes |
+|--------|-------|
+| Joe | Co-founder |
+| Jared | Co-founder |
+| Claude Code | AI agent — Dev, Review, Security, QA |
+| Emery | External advisor — data assets, architecture feedback |
+| Cary Wasden | Investment mentor — philosophy, Weekenders, 5-bucket framework |
+| Dr. Wyatt Miller | Statistical advisor — neural network framework, causal analysis methodology |
 
 ### Weekly Cadence
-1-hour sync weekly. Review Notion tickets → demo what was built → plan next week. No exceptions.
+1-hour sync weekly. Review tickets → demo what was built → plan next week. No exceptions.
 
 ---
 
@@ -1331,7 +1331,7 @@ See `SCHEDULE_v1.md` for full week-by-week breakdown.
 | Hosting — Backend | AWS |
 | Notifications | Signal (primary) + Telegram (backup) |
 | CI/CD | GitHub Actions |
-| Ticketing | Notion |
+| Ticketing | GitHub Issues |
 
 ---
 

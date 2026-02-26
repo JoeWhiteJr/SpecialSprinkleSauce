@@ -23,8 +23,8 @@
 ## WEEK 1 — Project Foundation
 **Goal:** Environment up, repo organized, all data assets confirmed, team fully aligned
 
-- [x] Set up Notion workspace and project board (tickets, weekly milestones, sprint view)
-- [x] Create Notion ticket template (description, acceptance criteria, owner, week target)
+- [x] Set up project board (tickets, weekly milestones, sprint view)
+- [x] Create ticket template (description, acceptance criteria, owner, week target)
 - [x] Audit all 4 project documents — confirm accuracy before any code is written
 - [x] Set up backend hosting (Render — replaced AWS EC2)
 - [x] Set up Supabase project — configure PostgreSQL + pgvector extension
@@ -66,15 +66,15 @@
 ## WEEK 2 — Data Pipeline & Database Schema
 **Goal:** All data sources flowing into Supabase, schemas defined, Bloomberg export automated
 
-- [ ] Implement fundamental data schema in Supabase
-- [ ] Build Bloomberg export pipeline: CSV → validate → Supabase with provenance metadata
+- [x] Implement fundamental data schema in Supabase
+- [x] Build Bloomberg export pipeline: CSV → validate → Supabase with provenance metadata
 - [ ] Load Dow Jones historical CSV into Supabase (`data/market/`)
 - [ ] Load Emery 10-year OHLCV dataset into Supabase (`data/market/`)
-- [ ] Build `TRADING_MODE` env var check — halt immediately if unset or invalid
-- [ ] Audit both datasets for survivorship bias scope — document findings in Notion
-- [ ] Document all Bloomberg known issues: Piotroski `#N/A`, TSM trailing P/E, AAPL ROC
+- [x] Build `TRADING_MODE` env var check — halt immediately if unset or invalid
+- [x] Audit both datasets for survivorship bias scope — document findings
+- [x] Document all Bloomberg known issues: Piotroski `#N/A`, TSM trailing P/E, AAPL ROC
 - [ ] Tag all Wasden Weekender PDFs with metadata (date, topics, sectors covered)
-- [ ] Begin `wasden_philosophy.md` — document 5 buckets, key principles, ratio theory in full
+- [x] Begin `wasden_philosophy.md` — document 5 buckets, key principles, ratio theory in full
 - [ ] Weekly sync: confirm all datasets accessible in Supabase, schema validated against `PROJECT_STANDARDS_v2.md`
 
 ---
@@ -83,7 +83,7 @@
 **Goal:** 5-tier screening funnel operational. S&P 500 narrows to top candidates end-to-end.
 
 - [ ] Document full Sprinkle Sauce filter criteria — which fields, which thresholds
-- [ ] Define Tier 1–5 funnel rules in Notion (complete spec before building)
+- [ ] Define Tier 1–5 funnel rules (complete spec before building)
 - [ ] Implement Tier 1 screening (price, volume, market cap filters)
 - [ ] Implement Tier 2 screening (Sprinkle Sauce fundamentals using Supabase data)
 - [ ] Research and document custom Piotroski F-Score EQS implementation formula
@@ -227,7 +227,7 @@
 |---------|-------|
 | Daily | Review recommendation feed, approve/reject, monitor system health and API costs |
 | Weekly | Bias monitoring report, performance vs. SPY, prompt review if verdicts drifting |
-| Monthly | Full system review in Notion — what's working, model retraining assessment |
+| Monthly | Full system review — what's working, model retraining assessment |
 
 ### Live Trading Readiness Checklist
 Both partners must agree before real money goes in:

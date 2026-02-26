@@ -150,12 +150,14 @@ Each machine runs its own Claude Code session with **independent context** — t
 
 ---
 
-## Roles Reminder
+## Team
 
-| Person | Role | Focus Areas |
-|--------|------|-------------|
-| **Joe** | Technical Lead / Data | Python, data pipeline, model training, APIs, infrastructure, Claude Code |
-| **Jared** | PM / QA / Wasden Expert | Notion project management, testing, Bloomberg data, trading rules, Wasden methodology |
+| Person | Notes |
+|--------|-------|
+| **Joe** | Co-founder |
+| **Jared** | Co-founder |
+
+Both contribute across all areas — no fixed roles.
 
 ---
 

@@ -93,7 +93,7 @@ Decision rules:
 - Checkpoint mechanism must exist before autotune activates
 - Autotune allowed: minor parameters (learning rates, regularization, lookback within 20%)
 - Autotune prohibited: jury weights, risk constants, Wasden veto, ensemble composition
-- Every autotune run: log changes, run 90-day holdout, written human sign-off in Notion before going live
+- Every autotune run: log changes, run 90-day holdout, written human sign-off before going live
 - Net zero performance triggers shutdown warning automatically
 
 ---
@@ -234,7 +234,7 @@ No default. System halts with clear error if unset. Primary safeguard against ac
 ### Slippage Model
 Order above 1% of average daily volume: model 0.1% slippage per 1% of ADV. Paper results without slippage are misleadingly optimistic.
 
-### Live Trading Transition Checklist (Both Partners Sign Off in Notion)
+### Live Trading Transition Checklist (Both Partners Sign Off)
 - Minimum paper trading period completed (both partners define this number before going live)
 - 60-80% win rate validated on backtesting
 - Personal trading rules document written and signed

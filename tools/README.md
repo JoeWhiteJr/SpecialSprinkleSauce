@@ -2,4 +2,4 @@
 
 Utility scripts for the Wasden Watch trading system.
 
-(Currently empty - Notion integration removed in favor of simpler task tracking via markdown files.)
+(Currently empty — utility scripts will be added as needed.)
