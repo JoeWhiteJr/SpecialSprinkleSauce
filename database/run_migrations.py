@@ -34,6 +34,8 @@ MIGRATION_FILES = [
     "011_bloomberg_fundamentals.sql",
     "012_watchlist_screening_settings.sql",
     "013_rls_policies.sql",
+    "014_price_history.sql",
+    "015_wasden_verdicts.sql",
 ]
 
 SEED_FILES = [
@@ -153,7 +155,8 @@ def run():
         "portfolio_daily_snapshot", "jury_votes", "debate_transcripts",
         "veto_overrides", "risk_alerts", "consecutive_loss_tracker",
         "bias_metrics", "bloomberg_fundamentals", "watchlist",
-        "screening_settings", "system_settings",
+        "screening_settings", "system_settings", "price_history",
+        "wasden_verdicts",
     ]
 
     for table in tables:

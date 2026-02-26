@@ -1,6 +1,11 @@
 """Configuration for the Wasden Watch RAG pipeline using pydantic-settings."""
 
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Project root: SpecialSprinkleSauce/ (3 levels up from this file)
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class WasdenWatchSettings(BaseSettings):
@@ -20,10 +25,10 @@ class WasdenWatchSettings(BaseSettings):
         """Return list of non-empty Gemini API keys."""
         return [k for k in [self.gemini_api_key_1, self.gemini_api_key_2] if k]
 
-    # Paths
-    pdf_corpus_path: str = "local/Wasden_Weekender_PDF"
-    metadata_path: str = "local/Wasden_Weekender_PDF/newsletter_metadata.json"
-    chroma_persist_dir: str = "local/chroma_wasden_watch"
+    # Paths (resolved from project root)
+    pdf_corpus_path: str = str(_PROJECT_ROOT / "local" / "Wasden_Weekender_PDF")
+    metadata_path: str = str(_PROJECT_ROOT / "local" / "Wasden_Weekender_PDF" / "newsletter_metadata.json")
+    chroma_persist_dir: str = str(_PROJECT_ROOT / "local" / "chroma_wasden_watch")
 
     # Chunking
     chunk_size_tokens: int = 600        # target: 500-800 range
@@ -35,7 +40,7 @@ class WasdenWatchSettings(BaseSettings):
 
     # LLM
     claude_model: str = "claude-sonnet-4-20250514"
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-2.5-flash"
     max_tokens: int = 2048
     temperature: float = 0.3
 
@@ -51,7 +56,7 @@ class WasdenWatchSettings(BaseSettings):
     direct_coverage_min_passages: int = 3
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(_PROJECT_ROOT / ".env"),
         env_prefix="",
         extra="ignore",
     )
