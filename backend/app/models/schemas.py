@@ -5,6 +5,7 @@ Based on the Decision Journal schema from PROJECT_STANDARDS_v2.md.
 
 from enum import Enum
 from pydantic import BaseModel, Field
+from datetime import date
 from typing import Optional
 
 
@@ -454,3 +455,97 @@ class HealthResponse(BaseModel):
     use_mock_data: bool
     db_connected: bool
     timestamp: str
+
+
+# ---------------------------------------------------------------------------
+# Data Pipeline Schemas (Week 2)
+# ---------------------------------------------------------------------------
+
+class DatasetSource(str, Enum):
+    DOW_JONES = "dow_jones"
+    EMERY_SP500 = "emery_sp500"
+
+
+class PriceHistoryRecord(BaseModel):
+    """Single OHLCV record for price history storage."""
+    ticker: str
+    date: date
+    open: Optional[float] = None
+    high: Optional[float] = None
+    low: Optional[float] = None
+    close: Optional[float] = None
+    volume: Optional[int] = None
+    adjusted_close: Optional[float] = None
+    dataset_source: DatasetSource
+    survivorship_bias_audited: bool = False
+
+
+class BloombergFieldError(BaseModel):
+    """Error detail for a single Bloomberg field."""
+    field_name: str
+    raw_value: str
+    error_type: str = Field(
+        ..., description="Typed error: N/A_INVALID_FIELD, N/A_NOT_APPLICABLE, N/A_NA, VALUE_ERROR, NAME_ERROR"
+    )
+
+
+class BloombergTickerResult(BaseModel):
+    """Validation result for a single ticker in a Bloomberg upload."""
+    ticker: str
+    success: bool
+    fields_parsed: int = 0
+    fields_errored: int = 0
+    errors: list[BloombergFieldError] = Field(default_factory=list)
+    freshness: Optional[DataFreshness] = None
+
+
+class BloombergValidationReport(BaseModel):
+    """Full validation report from a Bloomberg Excel upload."""
+    filename: str
+    pull_date: date
+    total_tickers: int
+    successful_tickers: int
+    failed_tickers: int
+    ticker_results: list[BloombergTickerResult] = Field(default_factory=list)
+    uploaded_to_supabase: bool = False
+    errors_summary: list[str] = Field(default_factory=list)
+
+
+class DatasetLoadResult(BaseModel):
+    """Result of loading a historical dataset (Dow Jones or Emery)."""
+    dataset_source: DatasetSource
+    file_path: str
+    rows_loaded: int
+    rows_skipped: int = 0
+    date_range_start: Optional[date] = None
+    date_range_end: Optional[date] = None
+    tickers_found: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+
+
+class TickerFreshness(BaseModel):
+    """Freshness status for a single ticker."""
+    ticker: str
+    pull_date: Optional[date] = None
+    freshness: DataFreshness
+    days_old: int
+
+
+class FreshnessReport(BaseModel):
+    """Freshness status for all tickers."""
+    report_date: date
+    tickers: list[TickerFreshness] = Field(default_factory=list)
+    fresh_count: int = 0
+    recent_count: int = 0
+    stale_count: int = 0
+    expired_count: int = 0
+
+
+class PriceHistoryStats(BaseModel):
+    """Statistics for price history datasets."""
+    dataset_source: DatasetSource
+    row_count: int
+    ticker_count: int
+    date_range_start: Optional[date] = None
+    date_range_end: Optional[date] = None
+    survivorship_audited_count: int = 0
