@@ -3,9 +3,9 @@
 
 Tier 1: Liquidity — market cap > $5B
 Tier 2: Sprinkle Sauce — PEG < 2.0, FCF yield > 3%, Piotroski >= 5
-Tier 3: STUB (quant models = Week 5)
-Tier 4: STUB (Wasden Watch = wired in Week 7)
-Tier 5: STUB (top 5 by composite × confidence)
+Tier 3: Quant Models — composite > 0.55, no high model disagreement
+Tier 4: Wasden Watch — VETO = fail, APPROVE/NEUTRAL = pass
+Tier 5: Final Selection — top 5 ranked by composite_quant × wasden_confidence
 
 Each tier returns per-ticker pass/fail with reasons and metrics.
 """
@@ -118,32 +118,119 @@ def _tier2_sprinkle_sauce(ticker: str, fundamentals: dict) -> dict:
     }
 
 
-def _tier3_stub(ticker: str, fundamentals: dict) -> dict:
-    """Tier 3: STUB — Quant model filter (Week 5)."""
-    return {
-        "ticker": ticker,
-        "passed": True,
-        "fail_reasons": [],
-        "metrics": {"stub": True, "note": "Quant models not yet implemented (Week 5)"},
-    }
+def _tier3_quant(ticker: str, fundamentals: dict) -> dict:
+    """Tier 3: Quant model filter — composite > 0.55 AND no high disagreement.
 
-
-def _tier4_stub(ticker: str, fundamentals: dict) -> dict:
-    """Tier 4: STUB — Wasden Watch verdict (Week 7)."""
-    return {
-        "ticker": ticker,
-        "passed": True,
-        "fail_reasons": [],
-        "metrics": {"stub": True, "note": "Wasden Watch not yet wired (Week 7)"},
-    }
-
-
-def _tier5_stub(candidates: list[dict]) -> list[dict]:
-    """Tier 5: STUB — Top 5 by composite × confidence (Week 7).
-
-    For now, returns up to 5 candidates in original order.
+    Uses QuantModelOrchestrator (mock or real based on USE_MOCK_DATA).
     """
-    return candidates[:5]
+    from src.intelligence.quant_models import QuantModelOrchestrator
+    from app.config import settings
+
+    orchestrator = QuantModelOrchestrator(use_mock=settings.use_mock_data)
+    scores = orchestrator.score_ticker(ticker)
+
+    fail_reasons = []
+    if scores["composite"] <= 0.55:
+        fail_reasons.append(
+            f"Quant composite {scores['composite']:.4f} <= 0.55 threshold"
+        )
+    if scores["high_disagreement_flag"]:
+        fail_reasons.append(
+            f"High model disagreement (std_dev={scores['std_dev']:.4f} > 0.50)"
+        )
+
+    return {
+        "ticker": ticker,
+        "passed": len(fail_reasons) == 0,
+        "fail_reasons": fail_reasons,
+        "metrics": {
+            "quant_scores": scores,
+            "composite": scores["composite"],
+            "std_dev": scores["std_dev"],
+            "high_disagreement_flag": scores["high_disagreement_flag"],
+        },
+    }
+
+
+def _tier4_wasden(ticker: str, fundamentals: dict) -> dict:
+    """Tier 4: Wasden Watch verdict — VETO=fail, APPROVE/NEUTRAL=pass.
+
+    Uses VerdictGenerator (or mock verdicts in mock mode).
+    """
+    from app.config import settings
+
+    if settings.use_mock_data:
+        from src.pipeline.decision_pipeline import _get_mock_verdicts
+        verdicts = _get_mock_verdicts()
+        verdict_data = verdicts.get(
+            ticker.upper(),
+            {"verdict": "NEUTRAL", "confidence": 0.60, "reasoning": "No coverage", "mode": "framework_application"},
+        )
+    else:
+        from src.intelligence.wasden_watch import VerdictGenerator, VerdictRequest
+        generator = VerdictGenerator()
+        request = VerdictRequest(ticker=ticker, fundamentals=fundamentals)
+        response = generator.generate(request)
+        verdict_data = {
+            "verdict": response.verdict.verdict,
+            "confidence": response.verdict.confidence,
+            "reasoning": response.verdict.reasoning,
+            "mode": response.verdict.mode,
+        }
+
+    fail_reasons = []
+    if verdict_data["verdict"] == "VETO":
+        fail_reasons.append(
+            f"Wasden Watch VETO (confidence={verdict_data['confidence']:.2f}): "
+            f"{verdict_data['reasoning'][:150]}"
+        )
+
+    return {
+        "ticker": ticker,
+        "passed": len(fail_reasons) == 0,
+        "fail_reasons": fail_reasons,
+        "metrics": {
+            "wasden_verdict": verdict_data["verdict"],
+            "wasden_confidence": verdict_data["confidence"],
+            "wasden_mode": verdict_data["mode"],
+        },
+    }
+
+
+def _tier5_final_selection(candidates: list[dict], tier3_results: list[dict], tier4_results: list[dict]) -> list[dict]:
+    """Tier 5: Final selection — top 5 ranked by composite_quant x wasden_confidence.
+
+    Args:
+        candidates: List of dicts with 'ticker' and 'fundamentals'.
+        tier3_results: Tier 3 results for quant composite lookup.
+        tier4_results: Tier 4 results for wasden confidence lookup.
+
+    Returns:
+        Top 5 candidates sorted by ranking score.
+    """
+    # Build lookup dicts from tier results
+    quant_lookup = {}
+    for r in tier3_results:
+        if r["passed"]:
+            quant_lookup[r["ticker"]] = r["metrics"].get("composite", 0.5)
+
+    wasden_lookup = {}
+    for r in tier4_results:
+        if r["passed"]:
+            wasden_lookup[r["ticker"]] = r["metrics"].get("wasden_confidence", 0.5)
+
+    # Score each candidate
+    scored = []
+    for c in candidates:
+        ticker = c["ticker"]
+        quant_composite = quant_lookup.get(ticker, 0.5)
+        wasden_confidence = wasden_lookup.get(ticker, 0.5)
+        rank_score = quant_composite * wasden_confidence
+        scored.append({**c, "_rank_score": rank_score})
+
+    # Sort descending by rank score, take top 5
+    scored.sort(key=lambda x: x["_rank_score"], reverse=True)
+    return scored[:5]
 
 
 def run_screening_pipeline(
@@ -191,36 +278,36 @@ def run_screening_pipeline(
     tier_results["tier2"] = tier2_results
     logger.info(f"Tier 2 (Sprinkle Sauce): {len(tier2_passed)}/{len(tier1_passed)} passed")
 
-    # --- Tier 3: Quant Models (STUB) ---
+    # --- Tier 3: Quant Models ---
     tier3_results = []
     tier3_passed = []
     for ticker in tier2_passed:
-        result = _tier3_stub(ticker, tickers_fundamentals[ticker])
+        result = _tier3_quant(ticker, tickers_fundamentals[ticker])
         tier3_results.append(result)
         if result["passed"]:
             tier3_passed.append(ticker)
 
     tier_results["tier3"] = tier3_results
-    logger.info(f"Tier 3 (Quant — STUB): {len(tier3_passed)}/{len(tier2_passed)} passed")
+    logger.info(f"Tier 3 (Quant): {len(tier3_passed)}/{len(tier2_passed)} passed")
 
-    # --- Tier 4: Wasden Watch (STUB) ---
+    # --- Tier 4: Wasden Watch ---
     tier4_results = []
     tier4_passed = []
     for ticker in tier3_passed:
-        result = _tier4_stub(ticker, tickers_fundamentals[ticker])
+        result = _tier4_wasden(ticker, tickers_fundamentals[ticker])
         tier4_results.append(result)
         if result["passed"]:
             tier4_passed.append(ticker)
 
     tier_results["tier4"] = tier4_results
-    logger.info(f"Tier 4 (Wasden — STUB): {len(tier4_passed)}/{len(tier3_passed)} passed")
+    logger.info(f"Tier 4 (Wasden): {len(tier4_passed)}/{len(tier3_passed)} passed")
 
-    # --- Tier 5: Final Selection (STUB) ---
+    # --- Tier 5: Final Selection ---
     final_candidate_dicts = [
         {"ticker": t, "fundamentals": tickers_fundamentals[t]}
         for t in tier4_passed
     ]
-    final_selected = _tier5_stub(final_candidate_dicts)
+    final_selected = _tier5_final_selection(final_candidate_dicts, tier3_results, tier4_results)
     final_tickers = [c["ticker"] for c in final_selected]
 
     tier_results["tier5"] = [
@@ -228,11 +315,13 @@ def run_screening_pipeline(
             "ticker": c["ticker"],
             "passed": c["ticker"] in final_tickers,
             "fail_reasons": [] if c["ticker"] in final_tickers else ["Not in top 5"],
-            "metrics": {"stub": True},
+            "metrics": {
+                "rank_score": round(c.get("_rank_score", 0), 4) if c["ticker"] in final_tickers else None,
+            },
         }
         for c in final_candidate_dicts
     ]
-    logger.info(f"Tier 5 (Final — STUB): {len(final_tickers)}/{len(tier4_passed)} selected")
+    logger.info(f"Tier 5 (Final): {len(final_tickers)}/{len(tier4_passed)} selected")
 
     elapsed = (datetime.utcnow() - start_time).total_seconds()
 
@@ -241,9 +330,9 @@ def run_screening_pipeline(
         {"stage_name": "Universe", "input_count": len(all_tickers), "output_count": len(all_tickers), "criteria": "Full ticker universe"},
         {"stage_name": "Tier 1: Liquidity", "input_count": len(all_tickers), "output_count": len(tier1_passed), "criteria": f"Market cap > ${MIN_MARKET_CAP / 1e9:.0f}B"},
         {"stage_name": "Tier 2: Sprinkle Sauce", "input_count": len(tier1_passed), "output_count": len(tier2_passed), "criteria": f"PEG < {MAX_PEG}, FCF yield > {MIN_FCF_YIELD}%, Piotroski >= {PIOTROSKI_THRESHOLD}"},
-        {"stage_name": "Tier 3: Quant Models", "input_count": len(tier2_passed), "output_count": len(tier3_passed), "criteria": "STUB — Week 5"},
-        {"stage_name": "Tier 4: Wasden Watch", "input_count": len(tier3_passed), "output_count": len(tier4_passed), "criteria": "STUB — Week 7"},
-        {"stage_name": "Tier 5: Final Selection", "input_count": len(tier4_passed), "output_count": len(final_tickers), "criteria": "Top 5 by composite × confidence (STUB)"},
+        {"stage_name": "Tier 3: Quant Models", "input_count": len(tier2_passed), "output_count": len(tier3_passed), "criteria": "Composite > 0.55, no high model disagreement"},
+        {"stage_name": "Tier 4: Wasden Watch", "input_count": len(tier3_passed), "output_count": len(tier4_passed), "criteria": "Wasden verdict != VETO"},
+        {"stage_name": "Tier 5: Final Selection", "input_count": len(tier4_passed), "output_count": len(final_tickers), "criteria": "Top 5 by composite_quant × wasden_confidence"},
     ]
 
     return {

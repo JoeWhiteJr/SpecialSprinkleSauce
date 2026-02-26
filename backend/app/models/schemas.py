@@ -687,3 +687,65 @@ class StressTestReport(BaseModel):
     scenarios: list[StressTestScenario]
     portfolio_value: float
     positions_count: int
+
+
+# ---------------------------------------------------------------------------
+# Quant Model Schemas (Week 5)
+# ---------------------------------------------------------------------------
+
+class ModelVersion(BaseModel):
+    """Model version metadata."""
+    model_name: str
+    version: str
+    model_type: str
+    target: str
+    output_range: list[float] = Field(default_factory=lambda: [0.0, 1.0])
+    parameters: dict = Field(default_factory=dict)
+    trained: bool = False
+    survivorship_bias_audited: bool = False
+
+
+class QuantModelStatus(BaseModel):
+    """Status of all quant models."""
+    models: dict = Field(default_factory=dict, description="model_name -> ModelVersion dict")
+    use_mock_data: bool = True
+
+
+# ---------------------------------------------------------------------------
+# Pipeline Schemas (Week 7)
+# ---------------------------------------------------------------------------
+
+class PipelineRunStatus(str, Enum):
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    VETOED = "vetoed"
+
+
+class PipelineRunSummary(BaseModel):
+    """Summary of a pipeline run for list views."""
+    id: str
+    ticker: str
+    started_at: str
+    completed_at: Optional[str] = None
+    status: PipelineRunStatus
+    final_action: Optional[str] = None
+    quant_composite: Optional[float] = None
+    wasden_verdict: Optional[str] = None
+
+
+class PipelineRunDetail(BaseModel):
+    """Full pipeline run with all stage results."""
+    id: str
+    ticker: str
+    started_at: str
+    completed_at: Optional[str] = None
+    status: PipelineRunStatus
+    quant_scores: Optional[dict] = None
+    wasden_verdict: Optional[dict] = None
+    debate_result: Optional[dict] = None
+    jury_result: Optional[dict] = None
+    risk_check: Optional[dict] = None
+    pre_trade_validation: Optional[dict] = None
+    final_decision: Optional[dict] = None
+    node_journal: list = Field(default_factory=list)

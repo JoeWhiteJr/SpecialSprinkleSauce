@@ -21,3 +21,12 @@ colorama==0.4.6
 finnhub-python==2.4.20
 yfinance==0.2.36
 alpaca-py==0.33.1
+
+# Week 5 quant models
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+statsmodels>=0.14.0
+newsapi-python>=0.2.7
+
+# Week 7 decision pipeline
+langgraph>=0.2.0
