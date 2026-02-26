@@ -20,6 +20,8 @@ from app.routers import (
     settings as settings_router,
     data_pipeline,
     wasden_watch as wasden_watch_router,
+    risk,
+    execution,
 )
 
 logger = logging.getLogger("wasden_watch")
@@ -76,7 +78,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register all 13 routers
+# Register all 15 routers
 app.include_router(health.router)
 app.include_router(portfolio.router)
 app.include_router(recommendations.router)
@@ -90,3 +92,5 @@ app.include_router(screening.router)
 app.include_router(settings_router.router)
 app.include_router(data_pipeline.router)
 app.include_router(wasden_watch_router.router)
+app.include_router(risk.router)
+app.include_router(execution.router)

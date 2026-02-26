@@ -993,3 +993,250 @@ def generate_jury_stats() -> dict:
             sum(majority_sizes) / max(len(majority_sizes), 1), 1
         ),
     }
+
+
+# ---------------------------------------------------------------------------
+# Piotroski Mock (Week 3)
+# ---------------------------------------------------------------------------
+
+MOCK_PIOTROSKI = {
+    "NVDA": {"score": 7, "max_possible": 9, "ratio": 0.778, "passes": True},
+    "PYPL": {"score": 5, "max_possible": 9, "ratio": 0.556, "passes": True},
+    "NFLX": {"score": 6, "max_possible": 9, "ratio": 0.667, "passes": True},
+    "TSM": {"score": 4, "max_possible": 4, "ratio": 1.0, "passes": True},
+    "XOM": {"score": 3, "max_possible": 9, "ratio": 0.333, "passes": False},
+    "AAPL": {"score": 8, "max_possible": 9, "ratio": 0.889, "passes": True},
+    "MSFT": {"score": 7, "max_possible": 9, "ratio": 0.778, "passes": True},
+    "AMZN": {"score": 6, "max_possible": 9, "ratio": 0.667, "passes": True},
+    "TSLA": {"score": 4, "max_possible": 9, "ratio": 0.444, "passes": False},
+    "AMD": {"score": 5, "max_possible": 9, "ratio": 0.556, "passes": True},
+}
+
+MOCK_SIGNALS = [
+    {"name": "roa_positive", "value": 1, "data_available": True, "detail": "EPS > 0"},
+    {"name": "operating_cash_flow_positive", "value": 1, "data_available": True, "detail": "FCF > 0"},
+    {"name": "roa_improving", "value": 0, "data_available": False, "detail": "Prior period not available"},
+    {"name": "accrual_quality", "value": 1, "data_available": True, "detail": "FCF>0 & OpMargin>0"},
+    {"name": "leverage_decreasing", "value": 0, "data_available": False, "detail": "Prior period not available"},
+    {"name": "current_ratio_improving", "value": 0, "data_available": False, "detail": "Prior period not available"},
+    {"name": "no_dilution", "value": 0, "data_available": False, "detail": "Shares data not available"},
+    {"name": "gross_margin_improving", "value": 0, "data_available": False, "detail": "Prior period not available"},
+    {"name": "asset_turnover_improving", "value": 1, "data_available": True, "detail": "Revenue growth > 0"},
+]
+
+
+def generate_piotroski_mock(ticker: str) -> dict:
+    """Generate mock Piotroski score for a ticker."""
+    data = MOCK_PIOTROSKI.get(ticker, {"score": 5, "max_possible": 9, "ratio": 0.556, "passes": True})
+    return {
+        "ticker": ticker,
+        "score": data["score"],
+        "max_possible": data["max_possible"],
+        "ratio": data["ratio"],
+        "passes_threshold": data["passes"],
+        "data_available": True,
+        "signals": MOCK_SIGNALS,
+    }
+
+
+def generate_tier1_preview() -> list[dict]:
+    """Preview Tier 1 liquidity filter results."""
+    results = []
+    mock_caps = {
+        "NVDA": 4_650_000_000_000, "PYPL": 73_000_000_000,
+        "NFLX": 340_000_000_000, "TSM": 960_000_000_000,
+        "XOM": 508_000_000_000, "AAPL": 3_940_000_000_000,
+    }
+    for ticker in PILOT_TICKERS:
+        cap = mock_caps.get(ticker, 50_000_000_000)
+        passed = cap >= 5_000_000_000
+        results.append({
+            "ticker": ticker,
+            "passed": passed,
+            "fail_reasons": [] if passed else [f"market_cap ${cap:,.0f} < $5B"],
+            "metrics": {"market_cap": cap},
+        })
+    return results
+
+
+def generate_tier2_preview() -> list[dict]:
+    """Preview Tier 2 Sprinkle Sauce filter results."""
+    results = []
+    mock_data = {
+        "NVDA": {"peg": 1.22, "fcf_yield": 2.8, "piotroski": 7, "passed": False, "fail": "FCF yield 2.80% < 3%"},
+        "PYPL": {"peg": 0.95, "fcf_yield": 8.1, "piotroski": 5, "passed": True, "fail": ""},
+        "NFLX": {"peg": 1.65, "fcf_yield": 4.2, "piotroski": 6, "passed": True, "fail": ""},
+        "TSM": {"peg": 1.35, "fcf_yield": 3.5, "piotroski": 4, "passed": True, "fail": ""},
+        "XOM": {"peg": 3.10, "fcf_yield": 7.2, "piotroski": 3, "passed": False, "fail": "PEG 3.10 >= 2.0; Piotroski 3/9"},
+        "AAPL": {"peg": 1.80, "fcf_yield": 3.8, "piotroski": 8, "passed": True, "fail": ""},
+    }
+    for ticker in PILOT_TICKERS:
+        d = mock_data.get(ticker, {"peg": 1.5, "fcf_yield": 4.0, "piotroski": 5, "passed": True, "fail": ""})
+        results.append({
+            "ticker": ticker,
+            "passed": d["passed"],
+            "fail_reasons": [d["fail"]] if d["fail"] else [],
+            "metrics": {
+                "peg_ratio": d["peg"],
+                "fcf_yield": d["fcf_yield"],
+                "piotroski_score": d["piotroski"],
+                "piotroski_max": 9,
+                "piotroski_ratio": round(d["piotroski"] / 9, 3),
+            },
+        })
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Risk Engine Mocks (Week 8)
+# ---------------------------------------------------------------------------
+
+def generate_risk_check_mock(ticker: str = "NVDA", position_pct: float = 0.05) -> dict:
+    """Mock risk check results for a proposed trade."""
+    return {
+        "passed": True,
+        "checks_failed": [],
+        "details": [
+            {"check_name": "position_size", "passed": True, "detail": f"Proposed {position_pct:.1%} of portfolio", "value": position_pct, "threshold": 0.12},
+            {"check_name": "cash_reserve", "passed": True, "detail": "Post-trade cash 30.0% of portfolio", "value": 0.30, "threshold": 0.10},
+            {"check_name": "correlation", "passed": True, "detail": "0 correlated positions (threshold 0.70, max 3)", "value": 0, "threshold": 3},
+            {"check_name": "stress_correlation", "passed": True, "detail": "0 tickers with stress correlation >= 0.80", "value": 0, "threshold": 0},
+            {"check_name": "sector_concentration", "passed": True, "detail": "Technology sector: 25.0% of portfolio", "value": 0.25, "threshold": 0.40},
+            {"check_name": "gap_risk", "passed": True, "detail": "Gap risk score 0.15", "value": 0.15, "threshold": 0.70},
+            {"check_name": "model_disagreement", "passed": True, "detail": "Model std_dev 0.060", "value": 0.06, "threshold": 0.50},
+        ],
+    }
+
+
+def generate_circuit_breaker_mock() -> dict:
+    """Mock circuit breaker status (inactive)."""
+    return {
+        "active": False,
+        "triggered_at": None,
+        "spy_5day_return": -0.012,
+        "actions_taken": [],
+        "resolved_at": None,
+        "resolved_by": None,
+    }
+
+
+def generate_stress_tests_mock() -> list[dict]:
+    """Mock stress test results for all 5 scenarios."""
+    scenarios = [
+        {"name": "covid_crash", "desc": "COVID-19 pandemic crash", "period": "Feb-March 2020", "spy": -0.339, "days": 33, "loss": -0.284, "loss_dollar": -28400},
+        {"name": "bear_2022", "desc": "2022 bear market", "period": "Jan-Oct 2022", "spy": -0.254, "days": 282, "loss": -0.218, "loss_dollar": -21800},
+        {"name": "regional_banking", "desc": "Regional banking crisis", "period": "March 2023", "spy": -0.078, "days": 14, "loss": -0.062, "loss_dollar": -6200},
+        {"name": "black_monday_1987", "desc": "Black Monday crash", "period": "October 19, 1987", "spy": -0.205, "days": 1, "loss": -0.192, "loss_dollar": -19200},
+        {"name": "financial_crisis_2008", "desc": "2008 financial crisis", "period": "Oct 2007-March 2009", "spy": -0.568, "days": 517, "loss": -0.485, "loss_dollar": -48500},
+    ]
+    results = []
+    for s in scenarios:
+        results.append({
+            "scenario_name": s["name"],
+            "description": s["desc"],
+            "period": s["period"],
+            "spy_drawdown": s["spy"],
+            "duration_days": s["days"],
+            "portfolio_loss": s["loss_dollar"],
+            "portfolio_loss_pct": s["loss"],
+            "position_impacts": [
+                {"ticker": "NVDA", "sector": "Technology", "current_value": 28473, "sector_multiplier": 0.85, "estimated_loss": round(s["spy"] * 0.85 * 28473, 2), "estimated_loss_pct": round(s["spy"] * 0.85 * 100, 2)},
+                {"ticker": "PYPL", "sector": "Technology", "current_value": 12495, "sector_multiplier": 0.85, "estimated_loss": round(s["spy"] * 0.85 * 12495, 2), "estimated_loss_pct": round(s["spy"] * 0.85 * 100, 2)},
+            ],
+            "surviving": True,
+        })
+    return results
+
+
+def generate_consecutive_loss_mock() -> dict:
+    """Mock consecutive loss counter state."""
+    return {
+        "current_streak": -2,
+        "consecutive_losses": 2,
+        "warning_threshold": 7,
+        "warning_active": False,
+        "entries_paused": False,
+        "paused_at": None,
+        "streak_tickers": ["NFLX US Equity", "AMD US Equity"],
+        "last_result_date": _ts(days_ago=6),
+        "resumed_by": None,
+        "resumed_at": None,
+    }
+
+
+def generate_orders_mock() -> list[dict]:
+    """Mock order records."""
+    return [
+        {
+            "id": "ord-001",
+            "ticker": "NVDA",
+            "side": "buy",
+            "quantity": 150,
+            "price": 189.82,
+            "state": "filled",
+            "alpaca_order_id": "sim-abc123def456",
+            "fill_price": 189.84,
+            "filled_quantity": 150,
+            "slippage": 3.00,
+            "risk_check_result": {"passed": True, "checks_failed": []},
+            "pre_trade_result": {"passed": True, "checks_failed": []},
+            "state_history": [
+                {"from_state": "submitted", "to_state": "pending", "timestamp": _ts(days_ago=5), "reason": "simulated"},
+                {"from_state": "pending", "to_state": "filled", "timestamp": _ts(days_ago=5), "reason": "simulated fill"},
+            ],
+            "created_at": _ts(days_ago=5),
+            "updated_at": _ts(days_ago=5),
+        },
+        {
+            "id": "ord-002",
+            "ticker": "PYPL",
+            "side": "buy",
+            "quantity": 300,
+            "price": 41.65,
+            "state": "filled",
+            "alpaca_order_id": "sim-def456ghi789",
+            "fill_price": 41.66,
+            "filled_quantity": 300,
+            "slippage": 3.00,
+            "risk_check_result": {"passed": True, "checks_failed": []},
+            "pre_trade_result": {"passed": True, "checks_failed": []},
+            "state_history": [
+                {"from_state": "submitted", "to_state": "pending", "timestamp": _ts(days_ago=4), "reason": "simulated"},
+                {"from_state": "pending", "to_state": "filled", "timestamp": _ts(days_ago=4), "reason": "simulated fill"},
+            ],
+            "created_at": _ts(days_ago=4),
+            "updated_at": _ts(days_ago=4),
+        },
+        {
+            "id": "ord-003",
+            "ticker": "XOM",
+            "side": "buy",
+            "quantity": 50,
+            "price": 147.28,
+            "state": "rejected",
+            "alpaca_order_id": None,
+            "fill_price": None,
+            "filled_quantity": 0,
+            "slippage": None,
+            "risk_check_result": {"passed": False, "checks_failed": ["sector_concentration"]},
+            "pre_trade_result": {"passed": True, "checks_failed": []},
+            "state_history": [
+                {"from_state": "submitted", "to_state": "rejected", "timestamp": _ts(days_ago=2), "reason": "Risk check failed: sector_concentration"},
+            ],
+            "created_at": _ts(days_ago=2),
+            "updated_at": _ts(days_ago=2),
+        },
+    ]
+
+
+def generate_account_mock() -> dict:
+    """Mock Alpaca account summary."""
+    return {
+        "portfolio_value": 100000.0,
+        "cash": 35000.0,
+        "buying_power": 70000.0,
+        "equity": 100000.0,
+        "trading_mode": "paper",
+        "status": "ACTIVE",
+        "simulated": True,
+    }
