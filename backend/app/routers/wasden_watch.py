@@ -1,29 +1,30 @@
 """FastAPI router for the Wasden Watch RAG pipeline."""
 
-import logging
 import sys
 from pathlib import Path
-from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
-
-# Add project root to path so src.intelligence can be imported
+# Add project root to path so src.intelligence can be imported — must run before
+# any src.intelligence imports below.
 _project_root = Path(__file__).resolve().parents[3]
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 
-from src.intelligence.wasden_watch.config import WasdenWatchSettings
-from src.intelligence.wasden_watch.exceptions import (
+import logging  # noqa: E402
+from typing import Any  # noqa: E402
+
+from fastapi import APIRouter, HTTPException, Query  # noqa: E402
+
+from src.intelligence.wasden_watch.config import WasdenWatchSettings  # noqa: E402
+from src.intelligence.wasden_watch.exceptions import (  # noqa: E402
     VerdictParsingError,
     WasdenWatchError,
 )
-from src.intelligence.wasden_watch.models import (
-    RetrievedPassage,
+from src.intelligence.wasden_watch.models import (  # noqa: E402
     VerdictRequest,
     VerdictResponse,
 )
-from src.intelligence.wasden_watch.vector_store import VectorStore
-from src.intelligence.wasden_watch.verdict_generator import VerdictGenerator
+from src.intelligence.wasden_watch.vector_store import VectorStore  # noqa: E402
+from src.intelligence.wasden_watch.verdict_generator import VerdictGenerator  # noqa: E402
 
 logger = logging.getLogger("wasden_watch")
 
