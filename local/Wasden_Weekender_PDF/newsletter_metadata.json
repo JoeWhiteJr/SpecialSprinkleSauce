@@ -1,0 +1,919 @@
+{
+  "metadata_version": "1.0",
+  "generated_date": "2026-02-25",
+  "total_newsletters": 28,
+  "newsletters": [
+    {
+      "filename": "Wasden_Weekender_2022-06-12.pdf",
+      "date": "2022-06-12",
+      "title": "Finding the Bogeyman",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "inflation",
+        "Federal Reserve policy",
+        "consumer sentiment",
+        "recession risk",
+        "earnings season",
+        "labor market",
+        "consumer spending",
+        "monetary policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "Consumer/Retail",
+        "Fixed Income"
+      ],
+      "sp500_weekly_return": "-5.1%",
+      "key_data_points": [
+        "CPI 8.6% (May 2022)",
+        "Consumer Sentiment 50.2 (lowest since 1978)",
+        "S&P 500 closed at 3900.86",
+        "MSCI Retailing Index -32.1% YTD",
+        "MSCI World IT Index -28.0% YTD"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2022-06-19.pdf",
+      "date": "2022-06-19",
+      "title": "Blowing the Froth",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "inflation",
+        "Federal Reserve policy",
+        "bear market",
+        "recession risk",
+        "earnings season",
+        "monetary policy",
+        "consumer spending"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "Fixed Income",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "-5.8%",
+      "key_data_points": [
+        "S&P 500 YTD -22.9%",
+        "NASDAQ YTD -30.9%",
+        "PPI headline 16.7%",
+        "Headline-Core CPI gap 2.6% (May)",
+        "Fed raised rates by 0.75% (largest in a generation)"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2022-06-26.pdf",
+      "date": "2022-06-26",
+      "title": "Carrying the Water",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "Federal Reserve policy",
+        "inflation",
+        "recession risk",
+        "consumer sentiment",
+        "stagflation",
+        "labor market",
+        "commodities",
+        "consumer spending"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "Commodities",
+        "Consumer/Retail",
+        "Semiconductors",
+        "Energy"
+      ],
+      "sp500_weekly_return": "+6.4%",
+      "key_data_points": [
+        "Consumer Sentiment all-time low (June final reading)",
+        "PMI services and manufacturing both declining",
+        "Bank of America clients holding 12.6% cash",
+        "CRB Raw Commodity Index declining from peaks"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2022-07-09.pdf",
+      "date": "2022-07-09",
+      "title": "Risk-On",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "inflation",
+        "Federal Reserve policy",
+        "recession risk",
+        "labor market",
+        "earnings season",
+        "monetary policy",
+        "consumer spending"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "Fixed Income",
+        "Real Estate",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "+1.9%",
+      "key_data_points": [
+        "S&P 500 YTD -18.2% (worst first half since 1970)",
+        "S&P 500 average forward PE 16.7 (pre-pandemic)",
+        "June payrolls 372,000 jobs added (far above expectations)",
+        "S&P 500 projected PE 17.0",
+        "Earnings estimates +10.4% growth for next year"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2022-07-17.pdf",
+      "date": "2022-07-17",
+      "title": "Faithful",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "inflation",
+        "Federal Reserve policy",
+        "earnings season",
+        "labor market",
+        "consumer spending",
+        "geopolitics",
+        "commodities",
+        "monetary policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Semiconductors",
+        "Energy",
+        "Commodities",
+        "Fixed Income",
+        "International/Emerging Markets",
+        "Financials"
+      ],
+      "sp500_weekly_return": "-0.93%",
+      "key_data_points": [
+        "CPI 9.1% (June, 41-year high)",
+        "PPI 11.3%",
+        "Core CPI 5.9%",
+        "Core PPI 8.2%",
+        "Consumer long-term inflation expectations 2.8%",
+        "Fed target rate upper bound 1.75%",
+        "S&P 500 earnings -9.9% contraction (early Q2 reports)",
+        "Philadelphia Semiconductor Index -31.7% YTD"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2024-08-18.pdf",
+      "date": "2024-08-18",
+      "title": "Much Ado About Nothing",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "AI/technology",
+        "recession risk",
+        "consumer spending",
+        "labor market",
+        "earnings season",
+        "Federal Reserve policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "Consumer"
+      ],
+      "sp500_weekly_return": "+3.9%",
+      "key_data_points": [
+        "S&P 500 within 2.0% of all-time high 5,667.20",
+        "Nvidia fell to $98.91 on Aug 7, recovered to $124.58 (+26.0%)",
+        "Best weekly gain of 2024"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2024-09-29.pdf",
+      "date": "2024-09-29",
+      "title": "What a Wonderful World",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "Federal Reserve policy",
+        "monetary policy",
+        "inflation",
+        "AI/technology",
+        "consumer spending",
+        "geopolitics",
+        "earnings season",
+        "labor market"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "International/Emerging Markets",
+        "Commodities",
+        "Consumer",
+        "Utilities",
+        "Real Estate"
+      ],
+      "sp500_weekly_return": "+0.6%",
+      "key_data_points": [
+        "S&P 500 YTD +20.3%",
+        "Nasdaq YTD +20.7%",
+        "S&P 500 PE ratio 27.2x",
+        "Costco PE ratio 54.1x",
+        "China stock market +15.7% weekly",
+        "Fed initial rate cut since pandemic-era peak",
+        "Expected 1.5% rate cuts over six months"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2024-10-18.pdf",
+      "date": "2024-10-18",
+      "title": "I Love Everybody",
+      "author": "Archimedes Black Box",
+      "topics": [
+        "earnings season",
+        "AI/technology",
+        "consumer spending",
+        "labor market",
+        "inflation",
+        "geopolitics"
+      ],
+      "sectors": [
+        "US Equities",
+        "Financials",
+        "Technology",
+        "Consumer"
+      ],
+      "sp500_weekly_return": "+0.9%",
+      "key_data_points": [
+        "Magnificent Seven 31.6% of S&P 500 market value",
+        "S&P 500 YTD +23.1%",
+        "Nasdaq YTD +23.2%",
+        "Six straight weeks of gains (longest in 2024)",
+        "Active small-cap fund avg small-cap holding only 16.4% vs 52.3% in 2014",
+        "Bank earnings: sales +1.1%, profits +6.29%"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2024-11-09.pdf",
+      "date": "2024-11-09",
+      "title": "Hail to the Chief",
+      "author": "Black Box Insights and Analytics",
+      "topics": [
+        "US election",
+        "Federal Reserve policy",
+        "tariffs",
+        "geopolitics",
+        "fixed income/bonds",
+        "cryptocurrency/Bitcoin"
+      ],
+      "sectors": [
+        "US Equities",
+        "Consumer",
+        "Financials",
+        "Energy",
+        "Technology",
+        "Real Estate"
+      ],
+      "sp500_weekly_return": "+4.7%",
+      "key_data_points": [
+        "Tesla shares +28.9% weekly",
+        "10-year Treasury yield 4.3%",
+        "30-year fixed mortgage 7.2%",
+        "Bitcoin returned to all-time high territory",
+        "BlackRock Bitcoin ETF surpassed gold ETF in assets"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2024-11-23.pdf",
+      "date": "2024-11-23",
+      "title": "Changes Coming",
+      "author": "Investor Solutions",
+      "topics": [
+        "US election",
+        "Federal Reserve policy",
+        "tariffs",
+        "AI/technology",
+        "cryptocurrency/Bitcoin",
+        "fixed income/bonds",
+        "consumer spending"
+      ],
+      "sectors": [
+        "US Equities",
+        "Energy",
+        "Financials",
+        "Consumer",
+        "Technology",
+        "Utilities",
+        "Real Estate"
+      ],
+      "sp500_weekly_return": "+1.7%",
+      "key_data_points": [
+        "November gains +4.5%",
+        "Energy sector +9.3% since Nov 1",
+        "Financials +8.8% since Nov 1",
+        "Bitcoin near $100,000 (new record)",
+        "Costco PE ratio 55.4x (highest in history)"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-02-18.pdf",
+      "date": "2025-02-18",
+      "title": "Beginning Again",
+      "author": "Wasden Weekender",
+      "topics": [
+        "Federal Reserve policy",
+        "inflation",
+        "tariffs",
+        "earnings season",
+        "consumer spending",
+        "labor market",
+        "fixed income/bonds",
+        "AI/technology",
+        "monetary policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "Consumer"
+      ],
+      "sp500_weekly_return": "+1.5%",
+      "key_data_points": [
+        "CPI 3.0%",
+        "Equities +5.7% since Nov 5 election",
+        "5-year bond breakeven inflation rate rising",
+        "76.8% of S&P 500 reported year-end 2024 profits",
+        "S&P 500 earnings: sales +5.1%, profits +10.4%",
+        "66% of S&P 500 members expressed concern about 2025 outlook"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-02-22.pdf",
+      "date": "2025-02-22",
+      "title": "All for One",
+      "author": "Wasden Weekender",
+      "topics": [
+        "earnings season",
+        "consumer spending",
+        "inflation",
+        "labor market",
+        "fixed income/bonds",
+        "recession risk",
+        "real estate"
+      ],
+      "sectors": [
+        "US Equities",
+        "Consumer/Retail",
+        "Real Estate",
+        "Fixed Income"
+      ],
+      "sp500_weekly_return": "-1.7%",
+      "key_data_points": [
+        "Walmart shares -8.8% (Thu-Fri)",
+        "Walmart PE 35.5x (double 15-year avg)",
+        "S&P 500 avg PE 18.8x",
+        "Top 100 most expensive S&P 500 stocks avg 87.4x PE",
+        "86.0% of S&P 500 reported: revenues +4.9%, profits +11.8%",
+        "30-year fixed mortgage 6.9%",
+        "Household debt $18.04 trillion (21-year high)",
+        "Credit card delinquency 11.4% (90+ days)",
+        "PMI: manufacturing growing slowly, services contracting"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-03-10.pdf",
+      "date": "2025-03-10",
+      "title": "House View Summary",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "tariffs",
+        "Federal Reserve policy",
+        "recession risk",
+        "earnings season",
+        "consumer spending",
+        "labor market",
+        "inflation",
+        "AI/technology",
+        "geopolitics"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "Consumer/Retail",
+        "Fixed Income",
+        "Financials"
+      ],
+      "sp500_weekly_return": "-2.1%",
+      "key_data_points": [
+        "S&P 500 -3.6% Mon-Thu, recovered on Friday",
+        "All post-election gains wiped out",
+        "Costco shares -9.1% weekly",
+        "February job creation weak, unemployment slowly rising",
+        "Consumer debt at record levels",
+        "Auto loan delinquencies at 30-year highs",
+        "Citi US Economic Surprise Index trending downward"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-03-15.pdf",
+      "date": "2025-03-15",
+      "title": "Tariff Troubles",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "tariffs",
+        "inflation",
+        "Federal Reserve policy",
+        "consumer sentiment",
+        "recession risk",
+        "consumer spending",
+        "fixed income/bonds",
+        "labor market"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Energy",
+        "Consumer"
+      ],
+      "sp500_weekly_return": "-2.3%",
+      "key_data_points": [
+        "Equity markets -8.2% from Feb 19 peak",
+        "S&P 500 free cash flow yield below 10-year Treasury yield",
+        "Consumer sentiment at recession-typical levels (U of Michigan)",
+        "Inflation expectations 4.1% for year ahead",
+        "CPI and PPI both slightly lower than expected",
+        "New round of universal tariffs expected April 2, 2025"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-03-29.pdf",
+      "date": "2025-03-29",
+      "title": "Rest Well Jeremy",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "tariffs",
+        "earnings season",
+        "consumer spending",
+        "inflation",
+        "Federal Reserve policy",
+        "AI/technology",
+        "gold/commodities",
+        "fixed income/bonds",
+        "recession risk",
+        "valuation"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "Energy",
+        "Healthcare",
+        "Communications",
+        "Utilities",
+        "Consumer",
+        "Financials",
+        "International/Emerging Markets",
+        "Commodities"
+      ],
+      "sp500_weekly_return": "-1.9%",
+      "key_data_points": [
+        "S&P 500 down -9.2% since Feb 19 peak",
+        "Nvidia trades at 23.9x estimated profits",
+        "Nvidia earnings growth expected at 55.2% annually over 3 years",
+        "Gold up 16.1% YTD",
+        "Bitcoin down -14.0% YTD",
+        "Mag 7 down -15.1% YTD",
+        "Dollar down -5.4% since mid-January",
+        "Inflation at 2.8-2.9%"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-04-13.pdf",
+      "date": "2025-04-13",
+      "title": "Playing with Fire",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "tariffs",
+        "consumer spending",
+        "inflation",
+        "stagflation",
+        "geopolitics",
+        "recession risk",
+        "earnings season",
+        "Federal Reserve policy",
+        "fixed income/bonds",
+        "monetary policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "International/Emerging Markets",
+        "Technology"
+      ],
+      "sp500_weekly_return": "+5.7%",
+      "key_data_points": [
+        "S&P 500 YTD -8.8%",
+        "S&P 500 up 9.5% on Wednesday after tariff pause",
+        "10-Year bond yield at 4.5%",
+        "30-Year fixed mortgage at 6.9%",
+        "90-day tariff delay announced",
+        "Consumer sentiment near historic lows",
+        "China patent applications 3x US levels"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-04-27.pdf",
+      "date": "2025-04-27",
+      "title": "End of an Era",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "tariffs",
+        "earnings season",
+        "consumer spending",
+        "inflation",
+        "recession risk",
+        "geopolitics",
+        "fixed income/bonds",
+        "monetary policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Consumer",
+        "Energy",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "+4.6%",
+      "key_data_points": [
+        "S&P 500 down -18.9% from Feb peak to Apr 8",
+        "S&P 500 down -10.7% from Feb 19 high",
+        "Container shipments from China to US West Coast down -46.0%",
+        "Consumer sentiment at levels always followed by recession historically",
+        "10% blanket tariff on UK products",
+        "Earnings recession described as foregone conclusion"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-05-11.pdf",
+      "date": "2025-05-11",
+      "title": "Two Questions",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "earnings season",
+        "tariffs",
+        "consumer spending",
+        "inflation",
+        "Federal Reserve policy",
+        "recession risk",
+        "valuation",
+        "labor market"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "Consumer"
+      ],
+      "sp500_weekly_return": "-0.5%",
+      "key_data_points": [
+        "S&P 500 up 13.7% since April 8 tariff bottom",
+        "S&P 500 still -7.8% below Feb 19 pre-tariff peak",
+        "79.8% of US companies reported Q1 results",
+        "Berkshire Hathaway total return 25,178.7% since Nov 1987 vs S&P 500 2,160.3%",
+        "Berkshire holds 5.2% of US federal treasury total issuance",
+        "Warren Buffett (94) announced stepping down as CEO",
+        "10% blanket tariff on every nation",
+        "Student loan amnesty ended"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-06-15.pdf",
+      "date": "2025-06-15",
+      "title": "Contempt",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "geopolitics",
+        "tariffs",
+        "earnings season",
+        "inflation",
+        "Federal Reserve policy",
+        "fixed income/bonds",
+        "consumer spending",
+        "valuation"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Energy",
+        "Healthcare",
+        "Utilities",
+        "Technology",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "-0.39%",
+      "key_data_points": [
+        "S&P 500 YTD +1.6%",
+        "S&P 500 still -2.7% below Feb 19 peak",
+        "S&P 500 fell -18.9% from Feb peak to Apr 8 bottom",
+        "CPI at 2.4%",
+        "No trade agreements completed to date",
+        "Israel attacked Iran military and nuclear sites",
+        "Iran has 409 kg of 60% enriched uranium (enough for 10 warheads)",
+        "Oil prices expected in $70s through year-end"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-06-21.pdf",
+      "date": "2025-06-21",
+      "title": "Positivity",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "consumer spending",
+        "Federal Reserve policy",
+        "monetary policy",
+        "inflation",
+        "geopolitics",
+        "fixed income/bonds",
+        "labor market",
+        "real estate"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Real Estate",
+        "Consumer",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "-0.15%",
+      "key_data_points": [
+        "Retail sales contracted -0.9% month-over-month",
+        "Fed held target rate at 4.5%",
+        "7 of Fed decision makers expect no rate cuts this year (up from 4)",
+        "Consumer spending is 67.7% of US economic output",
+        "Canadian retail sales declined -1.1%",
+        "UK retail sales fell -2.7%",
+        "Top 10% consumer share of spending at 49.7% (record high)",
+        "US residential construction at slowest pace since pandemic onset"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-08-03.pdf",
+      "date": "2025-08-03",
+      "title": "This Time is Different",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "tariffs",
+        "consumer spending",
+        "labor market",
+        "inflation",
+        "Federal Reserve policy",
+        "recession risk",
+        "valuation",
+        "AI/technology",
+        "fixed income/bonds"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "Consumer",
+        "International/Emerging Markets",
+        "Commodities"
+      ],
+      "sp500_weekly_return": "-2.4%",
+      "key_data_points": [
+        "S&P 500 fell -18.9% from Feb 19 peak to Apr 8 bottom",
+        "S&P 500 bounced 28.2% from Apr bottom to Jul 28 interim peak",
+        "Q2 GDP annualized 3.0% headline but only 1.3% ex-tariff items",
+        "US unemployment rate at 4.2%",
+        "US economy added only 73,000 jobs last month",
+        "10-Year bond yield peaked at 4.8% on inauguration eve",
+        "Hong Kong up 22.2% YTD",
+        "Shares outstanding in S&P 500 declining while ETF AUM rising"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-08-10.pdf",
+      "date": "2025-08-10",
+      "title": "When Data Rule",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "earnings season",
+        "stagflation",
+        "tariffs",
+        "inflation",
+        "Federal Reserve policy",
+        "AI/technology",
+        "valuation",
+        "fixed income/bonds"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology"
+      ],
+      "sp500_weekly_return": "0.0%",
+      "key_data_points": [
+        "91.1% of S&P 500 reported Q2 earnings",
+        "Money-losing stocks up 57.6% since April bottom",
+        "Magnificent Seven up 49.4% since April bottom",
+        "S&P 500 up 28.2% since April bottom",
+        "Mag 7 accounts for 33.8% of S&P 500 market value (record)",
+        "Nvidia up 32.1% YTD",
+        "Meta up 28.4% YTD",
+        "Microsoft up 24.7% YTD",
+        "Tesla down -13.1% YTD",
+        "Apple down -5.9% YTD"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-08-17.pdf",
+      "date": "2025-08-17",
+      "title": "Labor Boogie",
+      "author": "KT Insights and Analytics",
+      "topics": [
+        "labor market",
+        "AI/technology",
+        "tariffs",
+        "inflation",
+        "consumer spending",
+        "earnings season",
+        "valuation"
+      ],
+      "sectors": [
+        "US Equities",
+        "Technology",
+        "International/Emerging Markets",
+        "Consumer"
+      ],
+      "sp500_weekly_return": "+0.93%",
+      "key_data_points": [
+        "Q2 sales growth 5.9% YoY, earnings growth 11.3% YoY",
+        "459 of 497 S&P 500 members reported earnings",
+        "S&P 500 up 29.4% since April 9",
+        "Hong Kong index up 25.1% YTD",
+        "Consumer inflation expectations 1-year out at 4.9%",
+        "Microsoft: AI could eliminate 36% of employee work",
+        "Microsoft: 30% of new code written by AI",
+        "Meta aims 50% AI-written code by 2026",
+        "Nasdaq at highest price-to-book value since internet bubble"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-09-13.pdf",
+      "date": "2025-09-13",
+      "title": "Losers, Every One of Us",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "Federal Reserve policy",
+        "fixed income/bonds",
+        "labor market",
+        "inflation",
+        "geopolitics",
+        "monetary policy"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income"
+      ],
+      "sp500_weekly_return": "+1.6%",
+      "key_data_points": [
+        "S&P 500 ended at 6,584",
+        "10-Year bond yield fell from 4.8% (Jan 14) to 4.1%",
+        "Fixed income yields close to 5.0% annually",
+        "Fed expected to initiate gradual rate lowering"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-10-12.pdf",
+      "date": "2025-10-12",
+      "title": "Boredom and Curiosity",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "valuation",
+        "tariffs",
+        "AI/technology",
+        "earnings season",
+        "Federal Reserve policy",
+        "geopolitics",
+        "inflation"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "-2.4%",
+      "key_data_points": [
+        "S&P 500 hit all-time high on Wednesday",
+        "Trump announced 100% tariff on Chinese goods",
+        "S&P 500 PE ratio near all-time highs",
+        "S&P 500 free cash flow yield only 2.6%",
+        "10-Year govt bond yield at 4.0%",
+        "Bond yield excess over stock yield at historic highs",
+        "Federal government shutdown affecting data releases"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2025-11-16.pdf",
+      "date": "2025-11-16",
+      "title": "No Fear",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "AI/technology",
+        "valuation",
+        "stagflation",
+        "earnings season",
+        "fixed income/bonds",
+        "labor market",
+        "inflation"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "Communications",
+        "Utilities",
+        "International/Emerging Markets"
+      ],
+      "sp500_weekly_return": "+0.1%",
+      "key_data_points": [
+        "153,074 job cuts announced in October (3x October 2024)",
+        "OpenAI committed $1.4T in data center spending",
+        "OpenAI expected $20B revenue this year with $2B losses",
+        "Apple/MSFT/Google/Meta hold $322.7B in cash",
+        "Oracle shares fell 32.1% since September peak",
+        "Bitcoin declined 24.7% from Oct 6 high of $157,000",
+        "S&P 500 PE at 28.4x vs 15-year average of 17.8x",
+        "Technology sector up 24.5% YTD",
+        "S&P 500 up 14.5% YTD"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2026-01-10.pdf",
+      "date": "2026-01-10",
+      "title": "A Resolution",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "labor market",
+        "Federal Reserve policy",
+        "monetary policy",
+        "inflation",
+        "stagflation",
+        "geopolitics",
+        "AI/technology",
+        "valuation",
+        "real estate"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Technology",
+        "Real Estate"
+      ],
+      "sp500_weekly_return": "+1.6%",
+      "key_data_points": [
+        "Sell-side expects S&P 500 to rise 11.0% in 2026",
+        "Corporate profits expected to grow 12.0%",
+        "Services account for 72.5% of US economy",
+        "December jobs: 50,000 created (far below 220,000 equilibrium)",
+        "Fed policy rate restrictive by 1.0%",
+        "Money-losing stocks up 50.7% since July 1",
+        "Gold up 34.3% since July 1",
+        "Bitcoin down -17.2% since July 1",
+        "Federal government shutdown longest on record"
+      ]
+    },
+    {
+      "filename": "Wasden_Weekender_2026-01-31.pdf",
+      "date": "2026-01-31",
+      "title": "All That Glitters",
+      "author": "Archimedes Insights and Analytics",
+      "topics": [
+        "gold/commodities",
+        "consumer spending",
+        "inflation",
+        "Federal Reserve policy",
+        "labor market",
+        "AI/technology",
+        "valuation",
+        "geopolitics"
+      ],
+      "sectors": [
+        "US Equities",
+        "Fixed Income",
+        "Commodities",
+        "Technology",
+        "International/Emerging Markets",
+        "Real Estate"
+      ],
+      "sp500_weekly_return": "+0.3%",
+      "key_data_points": [
+        "Silver posted worst trading day ever on Friday",
+        "Bitcoin down -4.2% YTD, lost ~1/3 value since Oct record high",
+        "Ether down 40%+ from summer 2025 highs",
+        "10-Year US govt bond yield at 4.24%",
+        "Producer inflation at 2.9%",
+        "Consumer inflation (Dec 2025) at 2.7%",
+        "Fed held rates steady",
+        "Gold and copper strong performers in 2025 and early 2026"
+      ]
+    }
+  ]
+}

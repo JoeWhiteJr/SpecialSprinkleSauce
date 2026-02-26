@@ -41,8 +41,10 @@ Thumbs.db
 coverage/
 .vercel
 
-# Local working folder - not pushed to repo
-local/
+# Local working folder - not pushed to repo (except Wasden Weekender corpus)
+local/*
+!local/Wasden_Weekender_PDF/
+local/Wasden_Weekender_PDF/*:Zone.Identifier
 
 # Data files - keep local, not in repo
 data/**/*.csv
