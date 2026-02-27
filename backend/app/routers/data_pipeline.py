@@ -22,6 +22,9 @@ logger = logging.getLogger("wasden_watch.data_pipeline")
 
 router = APIRouter(prefix="/api/data", tags=["data-pipeline"])
 
+# Allowed base directory for server-side file loads (prevents path traversal)
+ALLOWED_DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+
 
 # ---------------------------------------------------------------------------
 # Request models
@@ -107,9 +110,11 @@ async def load_price_history(request: PriceHistoryLoadRequest):
             errors=["Mock data mode — load skipped"],
         )
 
-    file_path = Path(request.file_path)
+    file_path = Path(request.file_path).resolve()
+    if not str(file_path).startswith(str(ALLOWED_DATA_DIR)):
+        raise HTTPException(status_code=400, detail="Invalid file path")
     if not file_path.exists():
-        raise HTTPException(status_code=404, detail=f"File not found: {request.file_path}")
+        raise HTTPException(status_code=404, detail="Requested file not found")
 
     try:
         from app.services.data_loader import load_dow_jones_csv, load_emery_dataset

@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:20.11.1-slim
 
 WORKDIR /app
 
@@ -9,6 +9,9 @@ COPY . .
 
 # Default API URL for local Docker development; override in docker-compose
 ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+
+RUN groupadd -r nodejs && useradd -r -g nodejs -m nodejs
+USER nodejs
 
 EXPOSE 3000
 

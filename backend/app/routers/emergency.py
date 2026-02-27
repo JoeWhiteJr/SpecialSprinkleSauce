@@ -7,8 +7,10 @@ and force paper mode. All endpoints work in mock mode.
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from starlette.requests import Request
 
-from app.config import settings
+from app.audit import log_action
+from app.rate_limit import limiter
 from app.services.emergency.shutdown_manager import ShutdownManager
 
 router = APIRouter(prefix="/api/emergency", tags=["emergency"])
@@ -28,23 +30,18 @@ class ResumeRequest(BaseModel):
 
 
 @router.post("/shutdown")
-async def emergency_shutdown(req: ShutdownRequest):
+@limiter.limit("10/minute")
+async def emergency_shutdown(request: Request, req: ShutdownRequest):
     """Trigger emergency shutdown — cancel all orders and halt trading."""
-    if settings.use_mock_data:
-        return _manager.emergency_shutdown(req.initiated_by, req.reason)
-
+    log_action("emergency_shutdown", "/api/emergency/shutdown", req.initiated_by, req.reason)
     return _manager.emergency_shutdown(req.initiated_by, req.reason)
 
 
 @router.post("/resume")
-async def resume_trading(req: ResumeRequest):
+@limiter.limit("10/minute")
+async def resume_trading(request: Request, req: ResumeRequest):
     """Resume trading after emergency shutdown."""
-    if settings.use_mock_data:
-        try:
-            return _manager.resume_trading(req.approved_by)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-
+    log_action("resume_trading", "/api/emergency/resume", req.approved_by)
     try:
         return _manager.resume_trading(req.approved_by)
     except ValueError as e:
@@ -54,32 +51,20 @@ async def resume_trading(req: ResumeRequest):
 @router.get("/status")
 async def get_shutdown_status():
     """Get current emergency shutdown status."""
-    if settings.use_mock_data:
-        return _manager.get_shutdown_status()
-
     return _manager.get_shutdown_status()
 
 
 @router.get("/history")
 async def get_shutdown_history():
     """Get shutdown/resume event history."""
-    if settings.use_mock_data:
-        return _manager.get_shutdown_history()
-
     return _manager.get_shutdown_history()
 
 
 @router.post("/cancel-all-orders")
-async def cancel_all_orders():
+@limiter.limit("10/minute")
+async def cancel_all_orders(request: Request):
     """Cancel all open orders without triggering full shutdown."""
-    if settings.use_mock_data:
-        cancelled = _manager.cancel_all_orders()
-        return {
-            "success": True,
-            "orders_cancelled": len(cancelled),
-            "details": cancelled,
-        }
-
+    log_action("cancel_all_orders", "/api/emergency/cancel-all-orders")
     cancelled = _manager.cancel_all_orders()
     return {
         "success": True,
@@ -89,9 +74,8 @@ async def cancel_all_orders():
 
 
 @router.post("/force-paper-mode")
-async def force_paper_mode():
+@limiter.limit("10/minute")
+async def force_paper_mode(request: Request):
     """Request switch to paper trading mode (requires restart)."""
-    if settings.use_mock_data:
-        return _manager.force_paper_mode()
-
+    log_action("force_paper_mode", "/api/emergency/force-paper-mode")
     return _manager.force_paper_mode()

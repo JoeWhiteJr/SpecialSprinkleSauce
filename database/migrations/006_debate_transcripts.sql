@@ -17,3 +17,5 @@ CREATE TABLE debate_transcripts (
 
 CREATE INDEX idx_debate_pipeline ON debate_transcripts(pipeline_run_id);
 CREATE INDEX idx_debate_ticker ON debate_transcripts(ticker);
+
+COMMENT ON TABLE debate_transcripts IS 'Bull vs bear debate transcripts with round-by-round arguments';

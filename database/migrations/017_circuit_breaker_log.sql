@@ -11,3 +11,5 @@ CREATE TABLE circuit_breaker_log (
 );
 
 CREATE INDEX idx_circuit_breaker_triggered ON circuit_breaker_log(triggered_at DESC);
+
+COMMENT ON TABLE circuit_breaker_log IS 'Circuit breaker activation events triggered by market conditions';

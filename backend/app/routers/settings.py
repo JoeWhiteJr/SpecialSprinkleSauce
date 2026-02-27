@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Path, HTTPException
+from starlette.requests import Request
 
+from app.audit import log_action
 from app.config import settings
+from app.rate_limit import limiter
 from app.models.schemas import (
     SystemSetting,
     SettingUpdate,
@@ -44,11 +47,14 @@ async def get_settings():
 
 
 @router.put("/{key}", response_model=SystemSetting)
+@limiter.limit("10/minute")
 async def update_setting(
+    request: Request,
     key: str = Path(..., description="Setting key to update"),
     update: SettingUpdate = ...,
 ):
     """Update a system setting value. Respects editable and requires_approval flags."""
+    log_action("update_setting", f"/api/settings/{key}", details=f"key={key} value={update.value}")
     if settings.use_mock_data:
         all_settings = _get_mock_settings()
         setting = next((s for s in all_settings if s["key"] == key), None)

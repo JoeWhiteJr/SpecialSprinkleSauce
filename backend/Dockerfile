@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12.3-slim
 
 WORKDIR /app
 
@@ -15,6 +15,9 @@ COPY app/ ./app/
 # Default to safe paper mode with mock data
 ENV TRADING_MODE=paper
 ENV USE_MOCK_DATA=true
+
+RUN useradd -m -u 1001 appuser
+USER appuser
 
 EXPOSE 8000
 

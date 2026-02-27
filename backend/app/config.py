@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     frontend_url: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # API key for backend authentication (empty = auth disabled for local dev)
+    api_key: str = ""
+
     # Alpaca API keys (never hardcode — loaded from .env)
     alpaca_paper_api_key: str = ""
     alpaca_paper_secret_key: str = ""

@@ -11,8 +11,11 @@ Endpoints:
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from starlette.requests import Request
 
+from app.audit import log_action
 from app.config import settings
+from app.rate_limit import limiter
 from app.mock.generators import PILOT_TICKERS
 from app.services.rebalancing.rebalance_engine import RebalanceEngine
 from app.services.risk.constants import MAX_POSITION_PCT
@@ -151,12 +154,14 @@ async def preview_rebalance():
 
 
 @router.post("/execute")
-async def execute_rebalance():
+@limiter.limit("10/minute")
+async def execute_rebalance(request: Request):
     """Execute rebalance trades.
 
     Generates and executes trades to bring the portfolio back to target
     weights. In mock mode, returns simulated execution results.
     """
+    log_action("execute_rebalance", "/api/rebalancing/execute", details=f"trading_mode={settings.trading_mode}")
     if settings.use_mock_data:
         # Set default targets if none configured
         if not _engine.get_target_weights():

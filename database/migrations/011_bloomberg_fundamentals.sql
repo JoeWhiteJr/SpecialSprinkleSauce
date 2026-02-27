@@ -36,3 +36,5 @@ CREATE TABLE bloomberg_fundamentals (
 
 CREATE INDEX idx_bloomberg_ticker ON bloomberg_fundamentals(ticker);
 CREATE INDEX idx_bloomberg_date ON bloomberg_fundamentals(pull_date DESC);
+
+COMMENT ON TABLE bloomberg_fundamentals IS 'Bloomberg terminal fundamental data snapshots per ticker';

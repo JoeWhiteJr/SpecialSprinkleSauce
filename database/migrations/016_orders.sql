@@ -27,3 +27,5 @@ CREATE TABLE orders (
 CREATE INDEX idx_orders_ticker ON orders(ticker);
 CREATE INDEX idx_orders_state ON orders(state);
 CREATE INDEX idx_orders_created ON orders(created_at DESC);
+
+COMMENT ON TABLE orders IS 'Order submission and execution records with state machine tracking';
