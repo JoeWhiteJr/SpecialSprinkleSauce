@@ -239,3 +239,179 @@ export interface BloombergFundamental {
   freshness_grade: "FRESH" | "RECENT" | "STALE" | "EXPIRED"
   is_adr: boolean
 }
+
+// Notifications
+export interface Notification {
+  id: string
+  created_at: string
+  title: string
+  message: string
+  severity: "info" | "warning" | "critical"
+  channel: string
+  success: boolean
+  ticker: string | null
+}
+
+export interface NotificationChannel {
+  id: string
+  name: string
+  type: "log" | "slack" | "email"
+  enabled: boolean
+  configured: boolean
+}
+
+export interface NotificationPreferences {
+  [event: string]: string[]
+}
+
+// Backtesting
+export interface BacktestRun {
+  id: string
+  ticker: string
+  strategy: string
+  start_date: string
+  end_date: string
+  created_at: string
+  metrics: BacktestMetrics
+  equity_curve: EquityCurvePoint[]
+  trades: BacktestTrade[]
+}
+
+export interface BacktestMetrics {
+  total_return: number
+  annualized_return: number
+  sharpe_ratio: number
+  max_drawdown: number
+  win_rate: number
+  total_trades: number
+  profit_factor: number
+}
+
+export interface EquityCurvePoint {
+  date: string
+  value: number
+  drawdown: number
+}
+
+export interface BacktestTrade {
+  date: string
+  action: "BUY" | "SELL"
+  price: number
+  shares: number
+  pnl: number
+}
+
+export interface BacktestStrategy {
+  id: string
+  name: string
+  description: string
+}
+
+// Rebalancing
+export interface DriftAnalysis {
+  rebalance_needed: boolean
+  total_drift: number
+  positions: DriftEntry[]
+}
+
+export interface DriftEntry {
+  ticker: string
+  target_pct: number
+  current_pct: number
+  drift_pct: number
+  status: "in_range" | "over" | "under"
+}
+
+export interface TargetWeights {
+  weights: Record<string, number>
+  cash_weight: number
+  ticker_count: number
+}
+
+export interface RebalanceTrade {
+  ticker: string
+  action: "BUY" | "SELL"
+  shares: number
+  estimated_value: number
+}
+
+export interface RebalancePreview {
+  trades: RebalanceTrade[]
+  trade_count: number
+  drift_summary: string
+  dry_run: boolean
+}
+
+// Reports
+export interface DailyReport {
+  date: string
+  starting_value: number
+  ending_value: number
+  daily_pnl: number
+  daily_return: number
+  trades_executed: number
+  alerts_triggered: number
+  positions_opened: number
+  positions_closed: number
+}
+
+export interface WeeklyReport {
+  week_start: string
+  week_end: string
+  starting_value: number
+  ending_value: number
+  weekly_pnl: number
+  weekly_return: number
+  total_trades: number
+  win_rate: number
+  best_trade: string
+  worst_trade: string
+}
+
+export interface MonthlyReport {
+  month: string
+  starting_value: number
+  ending_value: number
+  monthly_pnl: number
+  monthly_return: number
+  sharpe_ratio: number
+  max_drawdown: number
+  total_trades: number
+  win_rate: number
+}
+
+export interface PaperTradingSummary {
+  setup: {
+    start_date: string
+    initial_capital: number
+    trading_mode: string
+  }
+  current: {
+    total_value: number
+    total_pnl: number
+    total_return: number
+    sharpe_ratio: number
+    max_drawdown: number
+    total_trades: number
+    win_rate: number
+    days_active: number
+  }
+}
+
+// Emergency
+export interface EmergencyStatus {
+  is_shutdown: boolean
+  trading_mode: string
+  shutdown_at: string | null
+  initiated_by: string | null
+  reason: string | null
+}
+
+export interface ShutdownEvent {
+  id: string
+  created_at: string
+  event_type: "shutdown" | "resume" | "cancel_orders" | "force_paper"
+  initiated_by: string
+  reason: string
+  details: Record<string, unknown>
+}

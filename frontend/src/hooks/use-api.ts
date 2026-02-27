@@ -91,3 +91,47 @@ export function useScreeningHistory() {
 export function useSettings() {
   return useSWR("settings", api.getSettings, defaultOptions)
 }
+
+export function useNotifications() {
+  return useSWR("notifications", api.getNotifications, defaultOptions)
+}
+
+export function useNotificationChannels() {
+  return useSWR("notification-channels", api.getNotificationChannels, defaultOptions)
+}
+
+export function useNotificationPreferences() {
+  return useSWR("notification-preferences", api.getNotificationPreferences, defaultOptions)
+}
+
+export function useBacktestRuns() {
+  return useSWR("backtest-runs", api.getBacktestRuns, defaultOptions)
+}
+
+export function useBacktestRun(runId: string) {
+  return useSWR(runId ? ["backtest-run", runId] : null, () => api.getBacktestRun(runId), defaultOptions)
+}
+
+export function useBacktestStrategies() {
+  return useSWR("backtest-strategies", api.getBacktestStrategies, defaultOptions)
+}
+
+export function useDrift() {
+  return useSWR("drift", api.getDrift, defaultOptions)
+}
+
+export function useTargets() {
+  return useSWR("targets", api.getTargets, defaultOptions)
+}
+
+export function usePaperTradingSummary() {
+  return useSWR("paper-trading-summary", api.getPaperTradingSummary, defaultOptions)
+}
+
+export function useEmergencyStatus() {
+  return useSWR("emergency-status", api.getEmergencyStatus, { ...defaultOptions, refreshInterval: 5000 })
+}
+
+export function useShutdownHistory() {
+  return useSWR("shutdown-history", api.getShutdownHistory, defaultOptions)
+}

@@ -14,6 +14,11 @@ import {
   Eye,
   Filter,
   Settings,
+  Bell,
+  TestTube2,
+  Scale,
+  FileText,
+  ShieldOff,
 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -31,6 +36,9 @@ const navGroups = [
       { href: "/journal", label: "Decision Journal", icon: BookOpen },
       { href: "/debates", label: "Debates", icon: MessageSquare },
       { href: "/jury", label: "Jury Votes", icon: Users },
+      { href: "/backtesting", label: "Backtesting", icon: TestTube2 },
+      { href: "/rebalancing", label: "Rebalancing", icon: Scale },
+      { href: "/reports", label: "Reports", icon: FileText },
     ],
   },
   {
@@ -40,6 +48,8 @@ const navGroups = [
       { href: "/alerts", label: "Alerts", icon: AlertTriangle },
       { href: "/bias", label: "Bias Monitor", icon: Eye },
       { href: "/screening", label: "Screening", icon: Filter },
+      { href: "/notifications", label: "Notifications", icon: Bell },
+      { href: "/emergency", label: "Emergency", icon: ShieldOff },
     ],
   },
   {

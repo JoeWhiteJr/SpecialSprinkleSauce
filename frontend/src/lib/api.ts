@@ -82,3 +82,61 @@ export const getSettings = () =>
   fetchAPI<{ settings: import("./types").SystemSetting[]; api_status: Record<string, { connected: boolean; latency_ms: number }> }>("/api/settings")
 export const updateSetting = (key: string, value: string) =>
   fetchAPI(`/api/settings/${key}`, { method: "PUT", body: JSON.stringify({ value }) })
+
+// Notifications
+export const getNotifications = () =>
+  fetchAPI<import("./types").Notification[]>("/api/notifications")
+export const getNotificationChannels = () =>
+  fetchAPI<import("./types").NotificationChannel[]>("/api/notifications/channels")
+export const sendTestNotification = (channel: string, message: string) =>
+  fetchAPI("/api/notifications/test", { method: "POST", body: JSON.stringify({ channel, message }) })
+export const getNotificationPreferences = () =>
+  fetchAPI<import("./types").NotificationPreferences>("/api/notifications/preferences")
+
+// Backtesting
+export const runBacktest = (data: { ticker: string; start_date: string; end_date: string; strategy: string }) =>
+  fetchAPI<import("./types").BacktestRun>("/api/backtesting/run", { method: "POST", body: JSON.stringify(data) })
+export const getBacktestRuns = () =>
+  fetchAPI<import("./types").BacktestRun[]>("/api/backtesting/runs")
+export const getBacktestRun = (runId: string) =>
+  fetchAPI<import("./types").BacktestRun>(`/api/backtesting/runs/${runId}`)
+export const getBacktestStrategies = () =>
+  fetchAPI<import("./types").BacktestStrategy[]>("/api/backtesting/strategies")
+
+// Rebalancing
+export const getDrift = () =>
+  fetchAPI<import("./types").DriftAnalysis>("/api/rebalancing/drift")
+export const getTargets = () =>
+  fetchAPI<import("./types").TargetWeights>("/api/rebalancing/targets")
+export const updateTargets = (weights: Record<string, number>) =>
+  fetchAPI("/api/rebalancing/targets", { method: "PUT", body: JSON.stringify({ weights }) })
+export const previewRebalance = () =>
+  fetchAPI<import("./types").RebalancePreview>("/api/rebalancing/preview", { method: "POST" })
+export const executeRebalance = () =>
+  fetchAPI("/api/rebalancing/execute", { method: "POST" })
+
+// Reports
+export const getDailyReport = (date: string) =>
+  fetchAPI<import("./types").DailyReport>(`/api/reports/daily/${date}`)
+export const getWeeklyReport = (weekStart: string) =>
+  fetchAPI<import("./types").WeeklyReport>(`/api/reports/weekly/${weekStart}`)
+export const getMonthlyReport = (month: string) =>
+  fetchAPI<import("./types").MonthlyReport>(`/api/reports/monthly/${month}`)
+export const getPaperTradingSummary = () =>
+  fetchAPI<import("./types").PaperTradingSummary>("/api/reports/paper-trading-summary")
+export const exportReport = (reportType: string, period: string) =>
+  fetchAPI(`/api/reports/export/${reportType}/${period}`)
+
+// Emergency
+export const emergencyShutdown = (data: { initiated_by: string; reason: string }) =>
+  fetchAPI("/api/emergency/shutdown", { method: "POST", body: JSON.stringify(data) })
+export const resumeTrading = (data: { approved_by: string }) =>
+  fetchAPI("/api/emergency/resume", { method: "POST", body: JSON.stringify(data) })
+export const getEmergencyStatus = () =>
+  fetchAPI<import("./types").EmergencyStatus>("/api/emergency/status")
+export const getShutdownHistory = () =>
+  fetchAPI<import("./types").ShutdownEvent[]>("/api/emergency/history")
+export const cancelAllOrders = () =>
+  fetchAPI("/api/emergency/cancel-all-orders", { method: "POST" })
+export const forcePaperMode = () =>
+  fetchAPI("/api/emergency/force-paper-mode", { method: "POST" })
