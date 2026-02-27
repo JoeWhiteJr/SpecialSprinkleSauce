@@ -201,3 +201,28 @@ class AlpacaClient:
         except Exception as e:
             logger.error(f"Failed to get Alpaca positions: {e}")
             return []
+
+    def cancel_all_orders(self) -> list[dict]:
+        """Cancel all open orders.
+
+        Returns:
+            List of cancelled order details (empty if no orders or mock mode).
+        """
+        client = self._get_client()
+        if client is None:
+            logger.info("MOCK: cancel_all_orders called (no client)")
+            return []
+
+        try:
+            cancel_statuses = client.cancel_orders()
+            cancelled = []
+            for status in cancel_statuses:
+                cancelled.append({
+                    "id": str(status.id) if hasattr(status, "id") else "unknown",
+                    "status": "cancelled",
+                })
+            logger.info(f"Cancelled {len(cancelled)} orders")
+            return cancelled
+        except Exception as e:
+            logger.error(f"Failed to cancel orders: {e}")
+            return []

@@ -33,6 +33,14 @@ class Settings(BaseSettings):
     mlflow_tracking_uri: str = "mlruns"
     mlflow_experiment_name: str = "wasden-watch-quant"
 
+    # Notifications (optional — all channels disabled by default)
+    slack_webhook_url: str = ""
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    notification_email_recipients: str = ""  # comma-separated
+
     class Config:
         env_file = ".env"
         extra = "ignore"
