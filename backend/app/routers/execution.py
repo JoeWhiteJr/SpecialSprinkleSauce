@@ -1,9 +1,12 @@
 import uuid
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+from starlette.requests import Request
 
+from app.audit import log_action
 from app.config import settings
+from app.rate_limit import limiter
 from app.mock.generators import (
     generate_orders_mock,
     generate_account_mock,
@@ -18,6 +21,34 @@ class OrderRequest(BaseModel):
     quantity: int
     price: float
 
+    @field_validator("side")
+    @classmethod
+    def validate_side(cls, v):
+        if v.lower() not in ("buy", "sell"):
+            raise ValueError("side must be 'buy' or 'sell'")
+        return v.lower()
+
+    @field_validator("quantity")
+    @classmethod
+    def validate_quantity(cls, v):
+        if v <= 0 or v > 100000:
+            raise ValueError("quantity must be between 1 and 100,000")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def validate_price(cls, v):
+        if v <= 0:
+            raise ValueError("price must be positive")
+        return v
+
+    @field_validator("ticker")
+    @classmethod
+    def validate_ticker(cls, v):
+        if not v.isalpha() or len(v) > 10:
+            raise ValueError("ticker must be alphabetic and at most 10 characters")
+        return v.upper()
+
 
 class ValidateRequest(BaseModel):
     ticker: str
@@ -28,8 +59,10 @@ class ValidateRequest(BaseModel):
 
 
 @router.post("/order")
-async def submit_order(req: OrderRequest):
+@limiter.limit("10/minute")
+async def submit_order(request: Request, req: OrderRequest):
     """Submit order (pre-trade validation + risk check + Alpaca)."""
+    log_action("submit_order", "/api/execution/order", details=f"ticker={req.ticker} side={req.side} qty={req.quantity}")
     if settings.use_mock_data:
         orders = generate_orders_mock()
         return orders[0]  # Return first mock order as response

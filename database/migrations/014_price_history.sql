@@ -26,3 +26,5 @@ ALTER TABLE price_history ADD CONSTRAINT uq_price_history_ticker_date_source
 -- Performance index for time-series queries
 CREATE INDEX idx_price_history_ticker_date ON price_history (ticker, date DESC);
 CREATE INDEX idx_price_history_source ON price_history (dataset_source);
+
+COMMENT ON TABLE price_history IS 'OHLCV price history from Bloomberg, Dow Jones, and market data sources';

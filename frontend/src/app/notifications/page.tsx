@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PageSkeleton } from "@/components/loading-skeletons"
 import {
   Bell,
   CheckCircle,
@@ -20,18 +20,8 @@ import {
 import { useNotifications, useNotificationChannels } from "@/hooks/use-api"
 import { mockNotifications, mockNotificationChannels } from "@/lib/mock-data"
 import { formatDateTime } from "@/lib/utils"
+import { severityBadge } from "@/lib/badge-helpers"
 import type { Notification, NotificationChannel } from "@/lib/types"
-
-function severityBadge(severity: Notification["severity"]) {
-  switch (severity) {
-    case "info":
-      return <Badge variant="outline" className="border-blue-500 text-blue-500">Info</Badge>
-    case "warning":
-      return <Badge className="bg-amber-600 hover:bg-amber-700">Warning</Badge>
-    case "critical":
-      return <Badge variant="destructive">Critical</Badge>
-  }
-}
 
 function channelIcon(type: NotificationChannel["type"]) {
   switch (type) {
@@ -42,40 +32,6 @@ function channelIcon(type: NotificationChannel["type"]) {
     case "email":
       return <Mail className="h-5 w-5" />
   }
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-10 w-16" />
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-6 w-20" />
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-      <Card>
-        <CardContent className="py-6 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  )
 }
 
 export default function NotificationsPage() {
@@ -122,7 +78,7 @@ export default function NotificationsPage() {
         </div>
 
         {isLoading ? (
-          <LoadingSkeleton />
+          <PageSkeleton />
         ) : (
           <>
             {/* Stat Cards */}

@@ -5,9 +5,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Eye, Target, BarChart3, TrendingUp } from "lucide-react"
-import { useBiasMetrics, useBiasHistory } from "@/hooks/use-api"
+import { useBiasHistory } from "@/hooks/use-api"
 import { mockBiasMetrics } from "@/lib/mock-data"
-import { formatDate, formatPercent } from "@/lib/utils"
+import { formatDate } from "@/lib/utils"
 import type { BiasMetric } from "@/lib/types"
 import {
   ResponsiveContainer,
@@ -84,14 +84,10 @@ function LoadingSkeleton() {
 }
 
 export default function BiasPage() {
-  const { data: apiLatest, isLoading: latestLoading } = useBiasMetrics()
-  const { data: apiHistory, isLoading: historyLoading } = useBiasHistory()
+  const { data: apiHistory, isLoading } = useBiasHistory()
 
-  // useBiasMetrics returns a single BiasMetric, useBiasHistory returns BiasMetric[]
-  // Fall back to mock data array for the full history
+  // useBiasHistory returns BiasMetric[] — fall back to mock data array
   const metrics = apiHistory ?? mockBiasMetrics
-
-  const isLoading = latestLoading || historyLoading
 
   const { totalApprove, totalNeutral, totalVeto, totalRecs, avgConfidence, totalOverrides } =
     aggregateMetrics(metrics)

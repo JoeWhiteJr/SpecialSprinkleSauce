@@ -15,3 +15,5 @@ CREATE TABLE portfolio_daily_snapshot (
 );
 
 CREATE INDEX idx_snapshot_date ON portfolio_daily_snapshot(date DESC);
+
+COMMENT ON TABLE portfolio_daily_snapshot IS 'Daily portfolio value snapshots for P&L tracking';

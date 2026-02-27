@@ -17,3 +17,5 @@ CREATE TABLE risk_alerts (
 
 CREATE INDEX idx_alerts_severity ON risk_alerts(severity);
 CREATE INDEX idx_alerts_acknowledged ON risk_alerts(acknowledged);
+
+COMMENT ON TABLE risk_alerts IS 'Risk engine alerts by severity with acknowledgment tracking';

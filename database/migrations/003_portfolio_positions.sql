@@ -20,3 +20,5 @@ CREATE TABLE portfolio_positions (
 
 CREATE INDEX idx_positions_status ON portfolio_positions(status);
 CREATE INDEX idx_positions_ticker ON portfolio_positions(ticker);
+
+COMMENT ON TABLE portfolio_positions IS 'Current and historical portfolio positions';

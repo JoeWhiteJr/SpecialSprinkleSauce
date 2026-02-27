@@ -14,3 +14,5 @@ CREATE TABLE consecutive_loss_tracker (
   resumed_by TEXT,
   resumed_at TIMESTAMPTZ
 );
+
+COMMENT ON TABLE consecutive_loss_tracker IS 'Tracks consecutive losing trades for automatic halt at 7';

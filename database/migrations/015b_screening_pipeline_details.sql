@@ -21,3 +21,5 @@ ALTER TABLE screening_runs
   ADD COLUMN IF NOT EXISTS final_candidates TEXT[] DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS model_used TEXT DEFAULT 'claude-haiku',
   ADD COLUMN IF NOT EXISTS data_freshness_summary JSONB DEFAULT '{}';
+
+COMMENT ON TABLE screening_tier_results IS 'Per-ticker tier pass/fail results for each screening pipeline run';

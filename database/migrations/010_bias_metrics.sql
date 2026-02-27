@@ -17,3 +17,5 @@ CREATE TABLE bias_metrics (
 );
 
 CREATE INDEX idx_bias_week ON bias_metrics(week_start DESC);
+
+COMMENT ON TABLE bias_metrics IS 'Weekly bias analysis metrics for model and verdict distribution';

@@ -39,3 +39,7 @@ CREATE TABLE system_settings (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   updated_by TEXT
 );
+
+COMMENT ON TABLE watchlist IS 'Pilot ticker watchlist for screening pipeline';
+COMMENT ON TABLE screening_runs IS 'Screening pipeline execution history and tier counts';
+COMMENT ON TABLE system_settings IS 'System configuration key-value store';

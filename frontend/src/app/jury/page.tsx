@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { useJuryVotes, useJuryStats } from "@/hooks/use-api"
 import { mockJuryVotes, mockJuryStats } from "@/lib/mock-data"
-import { formatPercent, cn } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import type { JuryVote, JuryStats } from "@/lib/types"
 import {
   Users,

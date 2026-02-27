@@ -17,3 +17,5 @@ CREATE TABLE veto_overrides (
 );
 
 CREATE INDEX idx_overrides_status ON veto_overrides(status);
+
+COMMENT ON TABLE veto_overrides IS 'Human overrides of Wasden VETO verdicts with outcome tracking';

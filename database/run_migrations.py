@@ -35,7 +35,18 @@ MIGRATION_FILES = [
     "012_watchlist_screening_settings.sql",
     "013_rls_policies.sql",
     "014_price_history.sql",
+    "014b_price_history_rls.sql",
     "015_wasden_verdicts.sql",
+    "015b_screening_pipeline_details.sql",
+    "016_orders.sql",
+    "017_circuit_breaker_log.sql",
+    "018_model_versions.sql",
+    "019_pipeline_runs.sql",
+    "020_notifications.sql",
+    "021_backtesting.sql",
+    "022_rebalancing.sql",
+    "023_reports.sql",
+    "024_emergency.sql",
 ]
 
 SEED_FILES = [
@@ -155,8 +166,11 @@ def run():
         "portfolio_daily_snapshot", "jury_votes", "debate_transcripts",
         "veto_overrides", "risk_alerts", "consecutive_loss_tracker",
         "bias_metrics", "bloomberg_fundamentals", "watchlist",
-        "screening_settings", "system_settings", "price_history",
-        "wasden_verdicts",
+        "screening_runs", "system_settings", "price_history",
+        "wasden_verdicts", "screening_tier_results", "orders",
+        "circuit_breaker_log", "model_versions", "pipeline_runs",
+        "notification_history", "backtest_runs", "rebalance_targets",
+        "rebalance_executions", "report_cache", "emergency_events",
     ]
 
     for table in tables:

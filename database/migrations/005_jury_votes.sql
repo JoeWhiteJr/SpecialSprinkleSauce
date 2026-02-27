@@ -15,3 +15,5 @@ CREATE TABLE jury_votes (
 );
 
 CREATE INDEX idx_jury_pipeline ON jury_votes(pipeline_run_id);
+
+COMMENT ON TABLE jury_votes IS 'Individual agent votes from 10-agent jury sessions';

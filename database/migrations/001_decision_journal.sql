@@ -58,3 +58,5 @@ CREATE TABLE decision_journal (
 CREATE INDEX idx_journal_ticker ON decision_journal(ticker);
 CREATE INDEX idx_journal_created ON decision_journal(created_at DESC);
 CREATE INDEX idx_journal_pipeline ON decision_journal(pipeline_run_id);
+
+COMMENT ON TABLE decision_journal IS 'Full decision audit trail for each pipeline run';

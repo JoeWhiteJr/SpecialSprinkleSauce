@@ -20,3 +20,5 @@ CREATE TABLE trade_recommendations (
 
 CREATE INDEX idx_recommendations_status ON trade_recommendations(status);
 CREATE INDEX idx_recommendations_created ON trade_recommendations(created_at DESC);
+
+COMMENT ON TABLE trade_recommendations IS 'Pending, approved, and rejected trade recommendations';

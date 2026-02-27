@@ -5,6 +5,9 @@ Endpoints for daily, weekly, monthly reports, paper trading summary,
 and JSON export downloads.
 """
 
+import re
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 
@@ -30,9 +33,11 @@ async def get_daily_report(date: str):
 
     Date format: YYYY-MM-DD
     """
-    # Basic date validation
-    if len(date) != 10 or date[4] != "-" or date[7] != "-":
-        raise HTTPException(status_code=400, detail="Date must be in YYYY-MM-DD format")
+    # Validate date format
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     gen = _get_generator()
     return gen.generate_daily_report(date)
@@ -49,8 +54,11 @@ async def get_weekly_report(week_start: str):
 
     Date format: YYYY-MM-DD (should be a Monday)
     """
-    if len(week_start) != 10 or week_start[4] != "-" or week_start[7] != "-":
-        raise HTTPException(status_code=400, detail="Date must be in YYYY-MM-DD format")
+    # Validate date format
+    try:
+        datetime.strptime(week_start, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     gen = _get_generator()
     return gen.generate_weekly_report(week_start)
@@ -67,8 +75,11 @@ async def get_monthly_report(month: str):
 
     Month format: YYYY-MM
     """
-    if len(month) != 7 or month[4] != "-":
-        raise HTTPException(status_code=400, detail="Month must be in YYYY-MM format")
+    # Validate month format
+    try:
+        datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid month format. Use YYYY-MM")
 
     gen = _get_generator()
     return gen.generate_monthly_report(month)
@@ -104,7 +115,11 @@ async def export_report(report_type: str, period: str):
         )
 
     json_str = gen.export_to_json(report)
-    filename = f"wasden_watch_{report_type}_{period}.json"
+
+    # Sanitize filename parameters to prevent Content-Disposition header injection
+    safe_type = re.sub(r'[^a-zA-Z0-9_-]', '', report_type)
+    safe_period = re.sub(r'[^a-zA-Z0-9_-]', '', period)
+    filename = f"wasden_watch_{safe_type}_{safe_period}.json"
 
     return Response(
         content=json_str,

@@ -18,3 +18,5 @@ CREATE TABLE wasden_verdicts (
 CREATE INDEX idx_wasden_verdicts_ticker ON wasden_verdicts(ticker);
 CREATE INDEX idx_wasden_verdicts_generated ON wasden_verdicts(generated_at DESC);
 CREATE INDEX idx_wasden_verdicts_verdict ON wasden_verdicts(verdict);
+
+COMMENT ON TABLE wasden_verdicts IS 'Wasden Watch RAG pipeline verdict results per ticker';

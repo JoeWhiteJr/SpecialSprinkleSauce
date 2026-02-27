@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { PageSkeleton } from "@/components/loading-skeletons"
 import {
   AlertTriangle,
   TrendingDown,
@@ -22,18 +22,8 @@ import {
 import { useAlerts, useStreak } from "@/hooks/use-api"
 import { mockAlerts, mockStreak } from "@/lib/mock-data"
 import { formatDate, formatDateTime, formatCurrency } from "@/lib/utils"
+import { severityBadge } from "@/lib/badge-helpers"
 import type { RiskAlert } from "@/lib/types"
-
-function severityBadge(severity: RiskAlert["severity"]) {
-  switch (severity) {
-    case "info":
-      return <Badge variant="outline" className="border-blue-500 text-blue-500">Info</Badge>
-    case "warning":
-      return <Badge className="bg-amber-600 hover:bg-amber-700">Warning</Badge>
-    case "critical":
-      return <Badge variant="destructive">Critical</Badge>
-  }
-}
 
 function streakStatusBadge(status: string) {
   switch (status) {
@@ -52,30 +42,6 @@ function streakColor(streak: number): string {
   if (streak === 0) return "text-emerald-500"
   if (streak <= 2) return "text-amber-500"
   return "text-red-500"
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-10 w-16" />
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-      <Card>
-        <CardContent className="py-6 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  )
 }
 
 export default function AlertsPage() {
@@ -141,7 +107,7 @@ export default function AlertsPage() {
         )}
 
         {isLoading ? (
-          <LoadingSkeleton />
+          <PageSkeleton />
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-3">
