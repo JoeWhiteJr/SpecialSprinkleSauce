@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.git
+.env
+.env.*
+mlruns/
+tests/
+*.egg-info
+.ruff_cache
