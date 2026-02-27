@@ -13,6 +13,15 @@ import type {
   BiasMetric,
   ScreeningRun,
   SystemSetting,
+  Notification,
+  NotificationChannel,
+  BacktestRun,
+  BacktestStrategy,
+  DriftAnalysis,
+  TargetWeights,
+  PaperTradingSummary,
+  EmergencyStatus,
+  ShutdownEvent,
 } from "./types"
 
 const TICKERS = [
@@ -239,4 +248,98 @@ export const mockSettings: SystemSetting[] = [
   { key: "MIN_CASH_RESERVE_PCT", value: "0.10", description: "Minimum cash reserve as % of portfolio", updated_at: daysAgo(30) },
   { key: "MAX_CORRELATED_POSITIONS", value: "3", description: "Maximum correlated positions allowed", updated_at: daysAgo(30) },
   { key: "CORRELATION_THRESHOLD", value: "0.70", description: "Correlation threshold for position checks", updated_at: daysAgo(30) },
+]
+
+// Notifications
+export const mockNotifications: Notification[] = [
+  { id: uuid(), created_at: daysAgo(0), title: "High Model Disagreement", message: "TSLA model disagreement std_dev 0.62 exceeds threshold 0.50", severity: "critical", channel: "log", success: true, ticker: "TSLA" },
+  { id: uuid(), created_at: daysAgo(0), title: "Position Size Alert", message: "NVDA position approaching 12% maximum at 9.4%", severity: "warning", channel: "log", success: true, ticker: "NVDA" },
+  { id: uuid(), created_at: daysAgo(1), title: "Pipeline Run Complete", message: "Decision pipeline completed for PYPL — BUY recommendation", severity: "info", channel: "log", success: true, ticker: "PYPL" },
+  { id: uuid(), created_at: daysAgo(2), title: "Wasden VETO Triggered", message: "TSLA fails fundamental value screens. VETO applied.", severity: "warning", channel: "slack", success: true, ticker: "TSLA" },
+  { id: uuid(), created_at: daysAgo(3), title: "Daily Report Generated", message: "Paper trading daily report for portfolio ready for review", severity: "info", channel: "email", success: false, ticker: null },
+]
+
+export const mockNotificationChannels: NotificationChannel[] = [
+  { id: uuid(), name: "Application Log", type: "log", enabled: true, configured: true },
+  { id: uuid(), name: "Slack Alerts", type: "slack", enabled: true, configured: true },
+  { id: uuid(), name: "Email Digest", type: "email", enabled: false, configured: false },
+]
+
+// Backtesting
+export const mockBacktestRuns: BacktestRun[] = [
+  {
+    id: uuid(), ticker: "NVDA", strategy: "sprinkle_sauce_v1", start_date: "2024-01-01", end_date: "2024-12-31", created_at: daysAgo(1),
+    metrics: { total_return: 42.5, annualized_return: 42.5, sharpe_ratio: 1.85, max_drawdown: -12.3, win_rate: 68.2, total_trades: 22, profit_factor: 2.1 },
+    equity_curve: Array.from({ length: 50 }, (_, i) => ({ date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`, value: 100000 + i * 850 + (Math.random() - 0.3) * 2000, drawdown: Math.random() * -5 })),
+    trades: [
+      { date: "2024-02-15", action: "BUY", price: 680.50, shares: 15, pnl: 0 },
+      { date: "2024-04-10", action: "SELL", price: 820.30, shares: 15, pnl: 2097 },
+      { date: "2024-06-05", action: "BUY", price: 110.25, shares: 90, pnl: 0 },
+      { date: "2024-08-20", action: "SELL", price: 128.40, shares: 90, pnl: 1633.50 },
+    ],
+  },
+  {
+    id: uuid(), ticker: "AAPL", strategy: "momentum_breakout", start_date: "2024-01-01", end_date: "2024-12-31", created_at: daysAgo(3),
+    metrics: { total_return: 18.7, annualized_return: 18.7, sharpe_ratio: 1.22, max_drawdown: -8.9, win_rate: 55.0, total_trades: 20, profit_factor: 1.5 },
+    equity_curve: Array.from({ length: 50 }, (_, i) => ({ date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`, value: 100000 + i * 380 + (Math.random() - 0.4) * 1500, drawdown: Math.random() * -4 })),
+    trades: [],
+  },
+  {
+    id: uuid(), ticker: "PYPL", strategy: "value_mean_reversion", start_date: "2024-06-01", end_date: "2024-12-31", created_at: daysAgo(5),
+    metrics: { total_return: 31.2, annualized_return: 52.4, sharpe_ratio: 2.05, max_drawdown: -6.1, win_rate: 72.0, total_trades: 18, profit_factor: 2.8 },
+    equity_curve: Array.from({ length: 30 }, (_, i) => ({ date: `2024-${String(Math.floor(i / 4) + 6).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`, value: 100000 + i * 1040 + (Math.random() - 0.3) * 1800, drawdown: Math.random() * -3 })),
+    trades: [],
+  },
+]
+
+export const mockBacktestStrategies: BacktestStrategy[] = [
+  { id: "sprinkle_sauce_v1", name: "Sprinkle Sauce v1", description: "Full pipeline: quant ensemble + Wasden verdicts + debate/jury" },
+  { id: "momentum_breakout", name: "Momentum Breakout", description: "SMA crossover + RSI + volume breakout signals" },
+  { id: "value_mean_reversion", name: "Value Mean Reversion", description: "FCF yield + PEG ratio undervaluation with reversion timing" },
+]
+
+// Rebalancing
+export const mockDrift: DriftAnalysis = {
+  rebalance_needed: true,
+  total_drift: 8.7,
+  positions: [
+    { ticker: "NVDA", target_pct: 12.0, current_pct: 14.2, drift_pct: 2.2, status: "over" },
+    { ticker: "AAPL", target_pct: 10.0, current_pct: 7.8, drift_pct: -2.2, status: "under" },
+    { ticker: "MSFT", target_pct: 10.0, current_pct: 9.5, drift_pct: -0.5, status: "in_range" },
+    { ticker: "AMD", target_pct: 8.0, current_pct: 10.1, drift_pct: 2.1, status: "over" },
+    { ticker: "XOM", target_pct: 6.0, current_pct: 4.3, drift_pct: -1.7, status: "under" },
+  ],
+}
+
+export const mockTargets: TargetWeights = {
+  weights: {
+    NVDA: 12.0, AAPL: 10.0, MSFT: 10.0, AMD: 8.0, XOM: 6.0,
+    PYPL: 8.0, NFLX: 6.0, TSM: 8.0, AMZN: 10.0, TSLA: 6.0,
+  },
+  cash_weight: 16.0,
+  ticker_count: 10,
+}
+
+// Reports
+export const mockPaperTradingSummary: PaperTradingSummary = {
+  setup: { start_date: "2024-12-01", initial_capital: 100000, trading_mode: "paper" },
+  current: {
+    total_value: 101243.05, total_pnl: 1243.05, total_return: 1.24,
+    sharpe_ratio: 1.45, max_drawdown: -3.2, total_trades: 11,
+    win_rate: 62.5, days_active: 45,
+  },
+}
+
+// Emergency
+export const mockEmergencyStatus: EmergencyStatus = {
+  is_shutdown: false,
+  trading_mode: "paper",
+  shutdown_at: null,
+  initiated_by: null,
+  reason: null,
+}
+
+export const mockShutdownHistory: ShutdownEvent[] = [
+  { id: uuid(), created_at: daysAgo(10), event_type: "shutdown", initiated_by: "Joe", reason: "Market volatility — SPY down 4% intraday", details: { spy_change: -4.2, positions_closed: 3 } },
+  { id: uuid(), created_at: daysAgo(9), event_type: "resume", initiated_by: "Jared", reason: "Volatility subsided, VIX back below 20", details: { vix: 18.5 } },
 ]
