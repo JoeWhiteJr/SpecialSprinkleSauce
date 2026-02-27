@@ -1,5 +1,5 @@
 # SCHEDULE_v1.md — Wasden Watch Week-by-Week Development Schedule
-> **Version:** 1.3 | **Last Updated:** February 26, 2026
+> **Version:** 1.4 | **Last Updated:** February 27, 2026
 > **Target:** Operable (paper trading, 60–80% backtested win rate) by end of May 2026
 > **Note:** Weekly sync required. Daily check-in recommended.
 
@@ -307,8 +307,30 @@
 - [x] Complete `wasden_philosophy.md` — final version, full 5-bucket detail *(Joe — 697 lines, 14 sections, 5-bucket framework, corpus analysis, RAG architecture, 11 principles)*
 - [ ] Request pre-June 2022 Weekenders from Wasden directly
 - [x] Set up `paper_trading_log.md` — begin tracking from Day 1 *(Joe — template ready with daily/weekly/monthly structure + live trading transition checklist)*
+- [x] Build notification service — Slack, email (SMTP), log fallback *(Joe — `notification_service.py`, 4 API endpoints, graceful degradation)*
+- [x] Build backtesting harness — event-driven OHLCV bar replay with slippage model *(Joe — `backtest_engine.py`, SMA crossover signals, Sharpe/Sortino/drawdown metrics)*
+- [x] Build portfolio rebalancing engine — drift detection, trade generation *(Joe — `rebalance_engine.py`, 2% threshold, MAX_POSITION_PCT enforcement)*
+- [x] Build reporting & export — daily/weekly/monthly reports, JSON/CSV export *(Joe — `report_generator.py`, paper trading summary matching template)*
+- [x] Build emergency shutdown — manual kill switch, bulk order cancel, force paper mode *(Joe — `shutdown_manager.py`, resume with human approval)*
+- [x] Build Docker & docker-compose — containerized local dev with hot reload *(Joe — `Dockerfile` backend + frontend, `docker-compose.yml`, `.dockerignore`)*
+- [x] Update `.env.example` with all current environment variables *(Joe — 49 lines, all config keys documented)*
+- [x] Add `cancel_all_orders()` to AlpacaClient *(Joe — `alpaca_client.py`, mock + live mode)*
 - [ ] LAUNCH: first full day of paper trading
 - [ ] Weekly sync: review Day 1 results, confirm system behaving as expected
+
+### Week 10 Completion Notes (Feb 27, 2026)
+
+**What was built (PR #19):**
+- 5 new backend services: Notifications, Backtesting, Rebalancing, Reporting, Emergency Shutdown
+- 5 new API routers (17→22 total): `/api/notifications`, `/api/backtesting`, `/api/rebalancing`, `/api/reports`, `/api/emergency`
+- 45 new tests (92→137 total): 8 notification + 9 backtesting + 10 rebalancing + 8 reporting + 10 emergency
+- Docker infrastructure: `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `backend/.dockerignore`
+- Config: added Slack/SMTP notification settings to `config.py`
+- AlpacaClient: added `cancel_all_orders()` for emergency shutdown integration
+- `.env.example` updated with all current environment variables (49 lines)
+- 29 files changed, 4,066 lines added
+
+**Remaining:** Dashboard frontend build, LangGraph streaming, AWS deployment, first paper trading day
 
 ---
 
@@ -326,9 +348,9 @@ Both partners must agree before real money goes in:
 - [ ] 60–80% win rate validated across minimum 60 days of paper trading
 - [ ] 7-consecutive-loss scenario handled correctly at least once
 - [ ] Override conditions agreed in writing by both partners
-- [ ] Signal notifications fully operational
+- [x] Signal notifications fully operational *(notification service built with Slack/email/log channels — PR #19)*
 - [ ] Maximum initial live capital agreed by both partners
-- [ ] Emergency shutdown procedure documented
+- [x] Emergency shutdown procedure documented *(emergency shutdown manager built with kill switch, bulk cancel, force paper mode — PR #19)*
 
 ---
 
@@ -348,4 +370,4 @@ Both partners must agree before real money goes in:
 ---
 
 *End of SCHEDULE_v1.md*
-*Last Updated: February 26, 2026*
+*Last Updated: February 27, 2026*
