@@ -1,5 +1,5 @@
 # SCHEDULE_v1.md — Wasden Watch Week-by-Week Development Schedule
-> **Version:** 1.4 | **Last Updated:** February 27, 2026
+> **Version:** 1.5 | **Last Updated:** February 28, 2026
 > **Target:** Operable (paper trading, 60–80% backtested win rate) by end of May 2026
 > **Note:** Weekly sync required. Daily check-in recommended.
 
@@ -269,7 +269,7 @@
 - [x] Complete unit test suite: ratio calculations, Bloomberg error handling, risk constants, TRADING_MODE *(Joe — 92 tests across 9 files: risk, pre-trade, screening, features, security, quant, pipeline, smoke)*
 - [x] Complete integration test suite: determinism, 10-known-stock verdicts, pre-trade validation *(Joe — `test_pipeline.py` covers all paths, `test_pre_trade_validation.py` enforces separation)*
 - [x] Set up MLflow for model versioning and experiment tracking *(Joe — `mlflow_tracking.py`, local file store, graceful degradation)*
-- [x] OWASP security review pass *(Joe — `test_security.py`, 8 checks: hardcoded keys, .env, TRADING_MODE, SQL injection, eval/exec, CORS, constants)*
+- [x] OWASP security review pass *(Joe — `test_security.py` 8 checks + PR #21: API key auth, rate limiting, audit logging, CORS hardening, path traversal fix, input validation, header injection fix, CSP headers)*
 - [ ] Weekly sync: review full stress test results — Go/No-Go decision for Week 10 launch *(awaits backtests)*
 
 ### Week 9 Completion Notes (Feb 26, 2026)
@@ -291,15 +291,20 @@
 ## WEEK 10 — Financial Forge Dashboard & Paper Trading Launch
 **Goal:** Dashboard live on Vercel. Paper trading live on Alpaca. System is operable.
 
-- [ ] Build Financial Forge dashboard:
-  - Portfolio monitoring (P&L vs. SPY, open positions, win/loss history)
-  - Daily recommendation feed with full reasoning and confidence scores
-  - Decision journal viewer (filterable by ticker, date, outcome)
-  - Debate transcript viewer (full bull vs. bear argument)
-  - Jury vote breakdown (all 10 agent votes and reasoning)
-  - Override controls (approve / reject / escalate)
-  - Consecutive loss warning panel (7-loss alert display)
-  - Bias monitoring section (weekly metrics)
+- [x] Build Financial Forge dashboard:
+  - [x] Portfolio monitoring (P&L vs. SPY, open positions, win/loss history) *(Joe — `portfolio/page.tsx`)*
+  - [x] Daily recommendation feed with full reasoning and confidence scores *(Joe — `recommendations/page.tsx`)*
+  - [x] Decision journal viewer (filterable by ticker, date, outcome) *(Joe — `journal/page.tsx`)*
+  - [x] Debate transcript viewer (full bull vs. bear argument) *(Joe — `debates/page.tsx`)*
+  - [x] Jury vote breakdown (all 10 agent votes and reasoning) *(Joe — `jury/page.tsx`)*
+  - [x] Override controls (approve / reject / escalate) *(Joe — `overrides/page.tsx`)*
+  - [x] Consecutive loss warning panel (7-loss alert display) *(Joe — `alerts/page.tsx`)*
+  - [x] Bias monitoring section (weekly metrics) *(Joe — `bias/page.tsx`)*
+  - [x] Notifications page (channel status, history, severity filter) *(Joe — `notifications/page.tsx`, PR #20)*
+  - [x] Backtesting page (run form, equity curve chart, metrics) *(Joe — `backtesting/page.tsx`, PR #20)*
+  - [x] Rebalancing page (drift table, target editor, preview/execute) *(Joe — `rebalancing/page.tsx`, PR #20)*
+  - [x] Reports page (daily/weekly/monthly tabs, paper trading summary) *(Joe — `reports/page.tsx`, PR #20)*
+  - [x] Emergency page (status banner, 4 action cards, event history) *(Joe — `emergency/page.tsx`, PR #20)*
 - [ ] Connect LangGraph streaming to dashboard for live pipeline view
 - [ ] Deploy backend to AWS
 - [ ] Confirm Vercel frontend connected to AWS backend
@@ -313,24 +318,59 @@
 - [x] Build reporting & export — daily/weekly/monthly reports, JSON/CSV export *(Joe — `report_generator.py`, paper trading summary matching template)*
 - [x] Build emergency shutdown — manual kill switch, bulk order cancel, force paper mode *(Joe — `shutdown_manager.py`, resume with human approval)*
 - [x] Build Docker & docker-compose — containerized local dev with hot reload *(Joe — `Dockerfile` backend + frontend, `docker-compose.yml`, `.dockerignore`)*
-- [x] Update `.env.example` with all current environment variables *(Joe — 49 lines, all config keys documented)*
+- [x] Update `.env.example` with all current environment variables *(Joe — 86 lines, all config keys + security warnings documented, PR #21)*
 - [x] Add `cancel_all_orders()` to AlpacaClient *(Joe — `alpaca_client.py`, mock + live mode)*
+- [x] Build frontend test suite — vitest + @testing-library/react, 7 test files, 26 tests *(Joe — PR #20)*
+- [x] Build project Makefile — dev, test, lint, build, docker, typecheck, ci targets *(Joe — PR #20)*
+- [x] Add 5 DB migrations (020–024) for new services *(Joe — notifications, backtesting, rebalancing, reports, emergency, PR #20)*
+- [x] Add frontend-tests CI job *(Joe — PR #20)*
+- [x] Security hardening — API key auth, rate limiting, audit logging, CORS, input validation, path traversal protection, header injection fix *(Joe — PR #21)*
+- [x] Infrastructure hardening — pinned Docker images, non-root users, SHA-pinned CI actions, pinned Python deps, Next.js security headers, ESLint config *(Joe — PR #21)*
+- [x] Code quality — shared badge/skeleton components, dead code removal, migration runner updated to 26 files, RLS on price_history, COMMENT ON TABLE on all migrations *(Joe — PR #21)*
 - [ ] LAUNCH: first full day of paper trading
 - [ ] Weekly sync: review Day 1 results, confirm system behaving as expected
 
-### Week 10 Completion Notes (Feb 27, 2026)
+### Week 10 Completion Notes (Feb 28, 2026)
 
-**What was built (PR #19):**
+**What was built (PR #19 — backend services):**
 - 5 new backend services: Notifications, Backtesting, Rebalancing, Reporting, Emergency Shutdown
 - 5 new API routers (17→22 total): `/api/notifications`, `/api/backtesting`, `/api/rebalancing`, `/api/reports`, `/api/emergency`
 - 45 new tests (92→137 total): 8 notification + 9 backtesting + 10 rebalancing + 8 reporting + 10 emergency
 - Docker infrastructure: `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `backend/.dockerignore`
 - Config: added Slack/SMTP notification settings to `config.py`
 - AlpacaClient: added `cancel_all_orders()` for emergency shutdown integration
-- `.env.example` updated with all current environment variables (49 lines)
 - 29 files changed, 4,066 lines added
 
-**Remaining:** Dashboard frontend build, LangGraph streaming, AWS deployment, first paper trading day
+**What was built (PR #20 — frontend pages, tests, tooling):**
+- 5 new frontend pages (10→15 total): notifications, backtesting, rebalancing, reports, emergency
+- Frontend foundation: 39 TypeScript interfaces, 47 API functions, 30 SWR hooks, 23 mock data exports
+- Frontend test suite: vitest + @testing-library/react, 7 test files, 26 tests
+- 5 DB migrations (020–024): notification_history, backtest_runs, rebalance_targets/executions, report_cache, emergency_events
+- Project Makefile: 12 targets (dev, test, lint, build, docker, typecheck, ci)
+- CI: added frontend-tests job (3 jobs total)
+- 30 files changed, ~2,500 lines added
+
+**What was built (PR #21 — security hardening & code quality):**
+- API key auth middleware (`backend/app/auth.py`) — disabled when `API_KEY=""` for local dev
+- Rate limiting via slowapi on sensitive endpoints (emergency, execution, rebalancing, settings)
+- Audit logging (`backend/app/audit.py`) — structured trail for all state-changing operations
+- CORS hardened: restricted methods/headers (no more `*` wildcards)
+- Input validation: Pydantic field_validators on execution orders, path traversal protection, header injection fix, date validation
+- Infrastructure: pinned Docker images + non-root users, SHA-pinned CI actions, exact Python dep versions, Next.js security headers (CSP, X-Frame-Options)
+- Code quality: shared badge-helpers + loading-skeletons components, dead code removal (bias/jury pages)
+- Migrations: runner updated to 26 files, RLS on price_history, COMMENT ON TABLE on all 17 older migrations
+- ESLint configured (v8 + next/core-web-vitals) for CI compatibility
+- `.env.example` expanded to 86 lines with security warnings
+- 45 files changed, +1,047 / -527 lines
+
+**Current totals:**
+- 15 frontend pages, 21 components, 22 backend routers
+- 26 DB migrations, 81 backend Python files
+- 176 tests (150 backend + 26 frontend)
+- ~18,300 lines of code (10,333 backend + 7,262 frontend + 679 SQL)
+- 3 CI jobs (backend, frontend, frontend-tests)
+
+**Remaining:** LangGraph streaming, AWS deployment, first paper trading day
 
 ---
 
@@ -370,4 +410,4 @@ Both partners must agree before real money goes in:
 ---
 
 *End of SCHEDULE_v1.md*
-*Last Updated: February 27, 2026*
+*Last Updated: February 28, 2026*
