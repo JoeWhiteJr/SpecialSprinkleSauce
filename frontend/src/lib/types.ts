@@ -415,3 +415,39 @@ export interface ShutdownEvent {
   reason: string
   details: Record<string, unknown>
 }
+
+// Pipeline Streaming
+export type PipelineNodeStatus = "pending" | "running" | "completed" | "skipped"
+
+export interface PipelineNodeState {
+  name: string
+  label: string
+  index: number
+  status: PipelineNodeStatus
+  data: Record<string, unknown> | null
+  skipReason: string | null
+  durationMs: number | null
+}
+
+export type PipelineStreamEventType =
+  | "pipeline_start"
+  | "node_start"
+  | "node_complete"
+  | "node_skipped"
+  | "pipeline_complete"
+  | "pipeline_error"
+
+export interface PipelineStreamEvent {
+  type: PipelineStreamEventType
+  pipeline_run_id?: string
+  ticker?: string
+  total_nodes?: number
+  node?: string
+  node_index?: number
+  duration_ms?: number
+  data?: Record<string, unknown>
+  reason?: string
+  result?: Record<string, unknown>
+  error?: string
+  timestamp: string
+}

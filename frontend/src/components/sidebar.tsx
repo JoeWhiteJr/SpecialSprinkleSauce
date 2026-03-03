@@ -19,6 +19,7 @@ import {
   Scale,
   FileText,
   ShieldOff,
+  Workflow,
 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -34,6 +35,7 @@ const navGroups = [
     label: "Analysis",
     items: [
       { href: "/journal", label: "Decision Journal", icon: BookOpen },
+      { href: "/pipeline", label: "Pipeline", icon: Workflow },
       { href: "/debates", label: "Debates", icon: MessageSquare },
       { href: "/jury", label: "Jury Votes", icon: Users },
       { href: "/backtesting", label: "Backtesting", icon: TestTube2 },
