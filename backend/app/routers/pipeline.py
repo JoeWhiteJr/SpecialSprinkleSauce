@@ -1,7 +1,10 @@
 """Pipeline API — run decisions, view pipeline runs and audit trails."""
 
+import json
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from starlette.responses import StreamingResponse
 
 from app.config import settings
 from app.mock.generators import generate_pipeline_run_mock, generate_pipeline_runs_mock
@@ -30,6 +33,23 @@ async def run_pipeline(request: PipelineRunRequest):
     pipeline = DecisionPipeline(use_mock=False)
     price = request.price or 0.0
     return pipeline.run(request.ticker, price, request.fundamentals)
+
+
+@router.post("/run-stream")
+async def run_pipeline_stream(request: PipelineRunRequest):
+    """Run decision pipeline with SSE streaming — events emitted as each node completes."""
+    from src.pipeline.streaming_pipeline import StreamingDecisionPipeline
+
+    async def event_generator():
+        pipeline = StreamingDecisionPipeline(use_mock=settings.use_mock_data, mock_delay=0.5 if settings.use_mock_data else 0.0)
+        async for event in pipeline.run_stream(request.ticker, request.price or 0.0, request.fundamentals):
+            yield f"event: pipeline_event\ndata: {json.dumps(event)}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.post("/run-batch")
