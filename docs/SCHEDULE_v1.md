@@ -1,5 +1,5 @@
 # SCHEDULE_v1.md — Wasden Watch Week-by-Week Development Schedule
-> **Version:** 1.5 | **Last Updated:** February 28, 2026
+> **Version:** 1.6 | **Last Updated:** March 3, 2026
 > **Target:** Operable (paper trading, 60–80% backtested win rate) by end of May 2026
 > **Note:** Weekly sync required. Daily check-in recommended.
 
@@ -305,7 +305,7 @@
   - [x] Rebalancing page (drift table, target editor, preview/execute) *(Joe — `rebalancing/page.tsx`, PR #20)*
   - [x] Reports page (daily/weekly/monthly tabs, paper trading summary) *(Joe — `reports/page.tsx`, PR #20)*
   - [x] Emergency page (status banner, 4 action cards, event history) *(Joe — `emergency/page.tsx`, PR #20)*
-- [ ] Connect LangGraph streaming to dashboard for live pipeline view
+- [x] Connect LangGraph streaming to dashboard for live pipeline view *(Joe — PR #22: `streaming_pipeline.py`, SSE `/run-stream` endpoint, `usePipelineStream` hook, Pipeline Runner page)*
 - [ ] Deploy backend to AWS
 - [ ] Confirm Vercel frontend connected to AWS backend
 - [x] Complete `bloomberg_fields.md` — all field codes, known errors, ADR notes, Piotroski workaround *(Joe — 515 lines, 13 sections, all 25 BDP fields, 7 error types, fallback chain mappings)*
@@ -363,14 +363,25 @@
 - `.env.example` expanded to 86 lines with security warnings
 - 45 files changed, +1,047 / -527 lines
 
+**What was built (PR #22 — LangGraph streaming pipeline):**
+- `src/pipeline/streaming_pipeline.py` — `StreamingDecisionPipeline` inheriting `DecisionPipeline`, async generator `run_stream()` yielding SSE events per node
+- SSE protocol: 6 event types (`pipeline_start`, `node_start`, `node_complete`, `node_skipped`, `pipeline_complete`, `pipeline_error`)
+- New `POST /api/pipeline/run-stream` endpoint using Starlette `StreamingResponse`
+- `frontend/src/hooks/use-pipeline-stream.ts` — `useReducer` state machine with `fetch` + `ReadableStream` SSE parsing
+- `frontend/src/app/pipeline/page.tsx` — Pipeline Runner page with vertical node stepper, expandable data previews, result summary, quick-test ticker buttons
+- 8 new tests: 4 backend (`test_pipeline_stream.py`) + 4 frontend (`pipeline.test.tsx`)
+- Sidebar updated: Pipeline link added to Analysis nav group
+- Types: `PipelineNodeStatus`, `PipelineNodeState`, `PipelineStreamEvent` added
+- 8 files changed, 1,110 lines added
+
 **Current totals:**
-- 15 frontend pages, 21 components, 22 backend routers
-- 26 DB migrations, 81 backend Python files
-- 176 tests (150 backend + 26 frontend)
-- ~18,300 lines of code (10,333 backend + 7,262 frontend + 679 SQL)
+- 16 frontend pages, 21 components, 22 backend routers
+- 26 DB migrations, 82 backend Python files
+- 184 tests (154 backend + 30 frontend)
+- ~19,400 lines of code (~11,400 backend + ~7,300 frontend + 679 SQL)
 - 3 CI jobs (backend, frontend, frontend-tests)
 
-**Remaining:** LangGraph streaming, AWS deployment, first paper trading day
+**Remaining:** AWS deployment, first paper trading day
 
 ---
 
@@ -410,4 +421,4 @@ Both partners must agree before real money goes in:
 ---
 
 *End of SCHEDULE_v1.md*
-*Last Updated: February 28, 2026*
+*Last Updated: March 3, 2026*
