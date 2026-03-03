@@ -9,14 +9,17 @@
 
 ---
 
-## Current State (as of Feb 25, 2026)
+## Current State (as of March 2, 2026)
 
-- **Week 1: COMPLETE** — Foundation, environment, deployment, data assets confirmed
-- **Starting: Week 2** — Data Pipeline & Database Schema
-- Dashboard is deployed and functional at the URLs below
-- Supabase database is seeded with initial data
+- **Weeks 1–10: COMPLETE** — All code built through paper trading launch prep
+- **Next:** Server setup for real data, model training, then first paper trading day
+- 15 frontend pages deployed across portfolio, analysis, monitoring, and admin
+- 22 backend API routers serving mock data
+- 26 DB migrations applied to Supabase
+- 176 tests (150 backend + 26 frontend), all passing
+- Security hardened: API key auth, rate limiting, audit logging, CORS, CSP headers
 - All API accounts created (Alpaca paper, Finnhub, NewsAPI)
-- Repo structured: `frontend/`, `backend/`, `database/`, `docs/`
+- Repo structured: `frontend/`, `backend/`, `database/`, `docs/`, `src/`
 
 ---
 
@@ -65,15 +68,18 @@ All env vars are listed in `.env.example` at the repo root. **Never commit `.env
 
 | Variable | Where It's Set | Notes |
 |----------|---------------|-------|
+| `TRADING_MODE` | Local `.env`, Render | Must be `paper` or `live` — system halts if unset |
+| `USE_MOCK_DATA` | Local `.env`, Render | `true` for mock data, `false` for real Supabase |
 | `SUPABASE_URL` | Local `.env`, Render, Vercel | Supabase project URL |
 | `SUPABASE_ANON_KEY` | Local `.env`, Render, Vercel | Public anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Local `.env`, Render | Server-side only — never expose to frontend |
-| `DATABASE_URL` | Local `.env`, Render | Connection pooler URL (port 6543) |
-| `ALPACA_API_KEY` | Local `.env`, Render | Paper trading key |
-| `ALPACA_SECRET_KEY` | Local `.env`, Render | Paper trading secret |
+| `SUPABASE_SERVICE_KEY` | Local `.env`, Render | Server-side only — never expose to frontend |
+| `API_KEY` | Local `.env`, Render | Backend auth — leave empty to disable for local dev |
+| `ALPACA_PAPER_API_KEY` | Local `.env`, Render | Paper trading key |
+| `ALPACA_PAPER_SECRET_KEY` | Local `.env`, Render | Paper trading secret |
 | `FINNHUB_API_KEY` | Local `.env`, Render | Market data |
 | `NEWSAPI_KEY` | Local `.env`, Render | News sentiment |
-| `TRADING_MODE` | Local `.env`, Render | Must be `paper` or `live` — system halts if unset |
+| `SLACK_WEBHOOK_URL` | Local `.env`, Render | Optional — notification channel |
+| `SMTP_HOST/PORT/USER/PASSWORD` | Local `.env`, Render | Optional — email notifications |
 
 **Jared:** Get credential values directly from Joe. They are NOT stored in the repo.
 
@@ -161,17 +167,22 @@ Both contribute across all areas — no fixed roles.
 
 ---
 
-## What's Next (Week 2)
+## What's Next (Post-Week 10)
 
-Refer to `docs/SCHEDULE_v1.md` — Week 2: Data Pipeline & Database Schema
+Refer to `docs/SCHEDULE_v1.md` — 27 items remain, mostly blocked on server/live data.
 
-**Key Week 2 tasks:**
-- Implement fundamental data schema in Supabase
-- Build Bloomberg export pipeline: CSV → validate → Supabase with provenance metadata
-- Load Dow Jones historical CSV and Emery 10-year OHLCV dataset into Supabase
-- Build `TRADING_MODE` env var check — halt if unset or invalid
-- Audit datasets for survivorship bias
-- Begin `wasden_philosophy.md`
+**Actionable now:**
+- Connect LangGraph streaming to dashboard for live pipeline view
+- Deploy backend to AWS (Dockerfiles ready)
+- Request pre-June 2022 Weekenders from Wasden directly
+- Risk constants formal approval (Joe + Jared review `risk/constants.py`)
+
+**Blocked on server:**
+- Load Dow Jones + Emery datasets into Supabase
+- Train XGBoost + Elastic Net on real Emery data
+- Run backtests on historical crash periods
+- Prompt calibration (20+ Wasden verdicts)
+- First full day of paper trading
 
 ---
 
@@ -180,6 +191,16 @@ Refer to `docs/SCHEDULE_v1.md` — Week 2: Data Pipeline & Database Schema
 | Date | Who | Summary |
 |------|-----|---------|
 | Feb 25, 2026 | Joe | **Week 1 complete.** Repo created, frontend deployed to Vercel, backend deployed to Render, Supabase configured with migrations and seed data. `.env.example` created. All API accounts set up. GitHub auto-deploy working for both frontend and backend. PARTNER_SYNC.md created. |
+| Feb 25, 2026 | Joe | **Week 2 complete (PR #4).** Data pipeline — Bloomberg Excel parser, OHLCV price_history table, Dow Jones + Emery CSV loaders, 4 new /api/data/ endpoints, TRADING_MODE hardening. |
+| Feb 26, 2026 | Joe | **Week 3 + 8 complete (PR #7).** Screening pipeline (5-tier funnel, Piotroski F-Score, data freshness) + Risk engine (7 checks, circuit breaker, slippage, stress tests, pre-trade validation). |
+| Feb 26, 2026 | Jared | **Week 4 complete.** Wasden Watch RAG pipeline — PDF processor, vector store, verdict generator, dual-LLM with Claude/Gemini fallback. Pilot run on 11 tickers. |
+| Feb 26, 2026 | Joe | **Weeks 5–7 complete (PRs #16–18).** Quant models (XGBoost, ElasticNet, ARIMA, Sentiment) + LangGraph decision pipeline (10 nodes, conditional edges) + debate engine + 10-agent jury. |
+| Feb 26, 2026 | Joe | **Week 6 complete.** Debate engine (bull/bear Claude vs Gemini) + 10-agent jury system with 5-5 escalation. |
+| Feb 26, 2026 | Joe | **Week 9 complete (PR #18).** Bias monitoring, performance tracking, MLflow, training CLI, 65 new tests, security tests. |
+| Feb 27, 2026 | Joe | **Week 10 backend (PR #19).** 5 new services (notifications, backtesting, rebalancing, reports, emergency), Docker infra, 45 new tests. |
+| Feb 27, 2026 | Joe | **Week 10 frontend (PR #20).** 5 new pages, frontend test suite (vitest, 26 tests), 5 DB migrations, Makefile, CI updates. |
+| Feb 28, 2026 | Joe | **Security hardening (PR #21).** API key auth, rate limiting (slowapi), audit logging, CORS hardening, input validation, path traversal fix, pinned deps, Docker non-root, SHA-pinned CI, Next.js security headers, ESLint config, shared components. |
+| Mar 2, 2026 | Joe | **Documentation audit.** Updated PARTNER_SYNC.md, .env.example, MEMORY.md, docker-compose.yml. Schedule checked off to 120/147 items. |
 
 ---
 

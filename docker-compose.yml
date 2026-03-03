@@ -31,7 +31,6 @@ services:
       - NEXT_PUBLIC_API_URL=http://backend:8000
     volumes:
       - ./frontend/src:/app/src        # hot reload
-      - ./frontend/public:/app/public
     depends_on:
       backend:
         condition: service_healthy
