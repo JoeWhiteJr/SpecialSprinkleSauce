@@ -17,8 +17,8 @@ def test_app_starts():
     assert app.title == "Wasden Watch Trading Dashboard API"
 
 
-def test_22_routers_registered():
-    """All 22 API routers are registered."""
+def test_23_routers_registered():
+    """All 23 API routers are registered."""
     prefixes = set()
     for route in app.routes:
         if hasattr(route, "path"):
@@ -32,6 +32,7 @@ def test_22_routers_registered():
         "screening", "settings", "data", "wasden-watch",
         "risk", "execution", "quant-models", "pipeline",
         "emergency", "backtesting", "notifications", "rebalancing", "reports",
+        "goals",
     }
     assert prefixes == expected, f"Missing: {expected - prefixes}, Extra: {prefixes - expected}"
 
