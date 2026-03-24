@@ -36,6 +36,7 @@ class DebateContext:
     wasden_confidence: float
     wasden_reasoning: str
     fundamentals: dict | None = field(default=None)
+    goal_context: str | None = field(default=None)
 
 
 class DebateEngine:

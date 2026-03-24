@@ -47,6 +47,7 @@ Analyze {ticker} (current price: ${price:.2f}) and argue the BULL case.
 - Reasoning: {wasden_reasoning}
 
 {fundamentals_section}\
+{goal_context_section}\
 Present your bull thesis now."""
 
 BEAR_INITIAL_PROMPT = """\
@@ -62,6 +63,7 @@ Analyze {ticker} (current price: ${price:.2f}) and argue the BEAR case.
 - Reasoning: {wasden_reasoning}
 
 {fundamentals_section}\
+{goal_context_section}\
 Present your bear thesis now."""
 
 # ---------------------------------------------------------------------------
@@ -104,3 +106,12 @@ Evaluate whether the following bull/bear debate on {ticker} has reached agreemen
 {final_bear_argument}
 
 Respond with JSON only."""
+
+# ---------------------------------------------------------------------------
+# Goal context block — injected when running within a Goal Orchestrator
+# ---------------------------------------------------------------------------
+
+GOAL_CONTEXT_BLOCK = """\
+## Goal Context
+{goal_context}
+"""
