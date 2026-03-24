@@ -456,8 +456,16 @@ export default function GoalsPage() {
   const [tab, setTab] = useState<Tab>("new")
 
   return (
-    <DashboardShell title="Goals" description="Task-based trading with defined financial targets">
+    <DashboardShell>
       <div className="space-y-6">
+        <div>
+          <div className="flex items-center gap-2">
+            <Target className="h-7 w-7 text-primary" />
+            <h1 className="text-2xl font-bold">Goals</h1>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">Task-based trading with defined financial targets</p>
+        </div>
+
         <TabBar tab={tab} setTab={setTab} />
 
         {tab === "new" && <NewGoalTab />}
