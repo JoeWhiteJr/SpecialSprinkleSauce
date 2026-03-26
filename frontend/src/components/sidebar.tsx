@@ -20,6 +20,7 @@ import {
   FileText,
   ShieldOff,
   Workflow,
+  Target,
 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -29,6 +30,7 @@ const navGroups = [
     items: [
       { href: "/portfolio", label: "Portfolio", icon: BarChart3 },
       { href: "/recommendations", label: "Recommendations", icon: Lightbulb },
+      { href: "/goals", label: "Goals", icon: Target },
     ],
   },
   {

@@ -9,6 +9,7 @@ from .prompts import (
     BULL_INITIAL_PROMPT,
     BULL_REBUTTAL_SYSTEM_PROMPT,
     BULL_SYSTEM_PROMPT,
+    GOAL_CONTEXT_BLOCK,
     REBUTTAL_PROMPT,
 )
 
@@ -37,6 +38,7 @@ class BullResearcher:
             wasden_reasoning=context.wasden_reasoning,
             quant_scores_section=_format_quant_scores(context.quant_scores),
             fundamentals_section=_format_fundamentals(context.fundamentals),
+            goal_context_section=_format_goal_context(context.goal_context),
         )
         return self._client.call_bull(BULL_SYSTEM_PROMPT, user_prompt)
 
@@ -79,3 +81,10 @@ def _format_fundamentals(fundamentals: dict | None) -> str:
             lines.append(f"- {key}: {value}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _format_goal_context(goal_context: str | None) -> str:
+    """Format optional goal context into a section. Empty string when absent."""
+    if not goal_context:
+        return ""
+    return GOAL_CONTEXT_BLOCK.format(goal_context=goal_context)
