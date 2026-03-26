@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Scale, AlertTriangle, ArrowUpDown, Eye, Play } from "lucide-react"
+import { Scale, AlertTriangle, ArrowUpDown, Eye, Play, CheckCircle2 } from "lucide-react"
 import { useDrift, useTargets } from "@/hooks/use-api"
 import { mockDrift, mockTargets } from "@/lib/mock-data"
 import { formatPercent } from "@/lib/utils"
+import * as api from "@/lib/api"
 import type { DriftAnalysis, DriftEntry, TargetWeights } from "@/lib/types"
 
 function driftStatusBadge(status: DriftEntry["status"]) {
@@ -67,8 +68,8 @@ const samplePreviewTrades = [
 ]
 
 export default function RebalancingPage() {
-  const { data: apiDrift, isLoading: driftLoading } = useDrift()
-  const { data: apiTargets, isLoading: targetsLoading } = useTargets()
+  const { data: apiDrift, isLoading: driftLoading, mutate: mutateDrift } = useDrift()
+  const { data: apiTargets, isLoading: targetsLoading, mutate: mutateTargets } = useTargets()
 
   const drift: DriftAnalysis = apiDrift ?? mockDrift
   const targets: TargetWeights = apiTargets ?? mockTargets
@@ -78,6 +79,10 @@ export default function RebalancingPage() {
   const [editedWeights, setEditedWeights] = useState<Record<string, number>>({})
   const [showPreview, setShowPreview] = useState(false)
   const [executeConfirmed, setExecuteConfirmed] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const handleWeightChange = (ticker: string, value: string) => {
     const num = parseFloat(value)
@@ -86,18 +91,40 @@ export default function RebalancingPage() {
     }
   }
 
-  const handleSaveTargets = () => {
-    const merged = { ...targets.weights, ...editedWeights }
-    console.log("Saving target weights:", merged)
+  const handleSaveTargets = async () => {
+    setIsSaving(true)
+    setError(null)
+    setSuccess(null)
+    try {
+      const merged = { ...targets.weights, ...editedWeights }
+      await api.updateTargets(merged)
+      setSuccess("Target weights saved successfully.")
+      await mutateTargets()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save target weights.")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleExecuteRebalance = () => {
+  const handleExecuteRebalance = async () => {
     if (!executeConfirmed) {
       setExecuteConfirmed(true)
       return
     }
-    console.log("Executing rebalance trades...")
-    setExecuteConfirmed(false)
+    setIsExecuting(true)
+    setError(null)
+    setSuccess(null)
+    try {
+      await api.executeRebalance()
+      setSuccess("Rebalance executed successfully.")
+      setExecuteConfirmed(false)
+      await mutateDrift()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to execute rebalance.")
+    } finally {
+      setIsExecuting(false)
+    }
   }
 
   return (
@@ -112,6 +139,19 @@ export default function RebalancingPage() {
             Monitor portfolio drift and execute rebalancing trades.
           </p>
         </div>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {success && (
+          <Alert>
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
 
         {drift.rebalance_needed && (
           <Alert variant="destructive">
@@ -260,7 +300,9 @@ export default function RebalancingPage() {
                   ))}
                 </div>
                 <div className="mt-4">
-                  <Button onClick={handleSaveTargets}>Save Targets</Button>
+                  <Button onClick={handleSaveTargets} disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save Targets"}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -287,9 +329,10 @@ export default function RebalancingPage() {
                   <Button
                     variant="destructive"
                     onClick={handleExecuteRebalance}
+                    disabled={isExecuting}
                   >
                     <Play className="mr-2 h-4 w-4" />
-                    {executeConfirmed ? "Confirm Execution" : "Execute Rebalance"}
+                    {isExecuting ? "Executing..." : executeConfirmed ? "Confirm Execution" : "Execute Rebalance"}
                   </Button>
                 </div>
 

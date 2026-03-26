@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -25,10 +26,13 @@ import {
   PlayCircle,
   XCircle,
   FileText,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react"
 import { useEmergencyStatus, useShutdownHistory } from "@/hooks/use-api"
 import { mockEmergencyStatus, mockShutdownHistory } from "@/lib/mock-data"
 import { formatDateTime } from "@/lib/utils"
+import * as api from "@/lib/api"
 import type { EmergencyStatus, ShutdownEvent } from "@/lib/types"
 
 type ActionType = "shutdown" | "resume" | "cancel_orders" | "force_paper"
@@ -94,8 +98,8 @@ function LoadingSkeleton() {
 }
 
 export default function EmergencyPage() {
-  const { data: apiStatus, isLoading: statusLoading } = useEmergencyStatus()
-  const { data: apiHistory, isLoading: historyLoading } = useShutdownHistory()
+  const { data: apiStatus, isLoading: statusLoading, mutate: mutateStatus } = useEmergencyStatus()
+  const { data: apiHistory, isLoading: historyLoading, mutate: mutateHistory } = useShutdownHistory()
 
   const status = apiStatus ?? mockEmergencyStatus
   const history = apiHistory ?? mockShutdownHistory
@@ -104,6 +108,9 @@ export default function EmergencyPage() {
   const [dialogAction, setDialogAction] = useState<ActionType>("shutdown")
   const [initiatedBy, setInitiatedBy] = useState("")
   const [reason, setReason] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const isLoading = statusLoading || historyLoading
 
@@ -114,11 +121,35 @@ export default function EmergencyPage() {
     setDialogOpen(true)
   }
 
-  const handleConfirm = () => {
-    console.log(`${dialogAction}:`, { initiated_by: initiatedBy, reason })
-    setDialogOpen(false)
-    setInitiatedBy("")
-    setReason("")
+  const handleConfirm = async () => {
+    setIsSubmitting(true)
+    setError(null)
+    setSuccess(null)
+    try {
+      switch (dialogAction) {
+        case "shutdown":
+          await api.emergencyShutdown({ initiated_by: initiatedBy, reason })
+          break
+        case "resume":
+          await api.resumeTrading({ approved_by: initiatedBy })
+          break
+        case "cancel_orders":
+          await api.cancelAllOrders()
+          break
+        case "force_paper":
+          await api.forcePaperMode()
+          break
+      }
+      setDialogOpen(false)
+      setInitiatedBy("")
+      setReason("")
+      setSuccess(`${ACTION_CONFIG[dialogAction].title} completed successfully.`)
+      await Promise.all([mutateStatus(), mutateHistory()])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const config = ACTION_CONFIG[dialogAction]
@@ -172,6 +203,20 @@ export default function EmergencyPage() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Feedback */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {success && (
+              <Alert>
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
             )}
 
             {/* Action Cards */}
@@ -271,10 +316,10 @@ export default function EmergencyPage() {
                     </Button>
                     <Button
                       onClick={handleConfirm}
-                      disabled={!initiatedBy.trim() || !reason.trim()}
+                      disabled={!initiatedBy.trim() || !reason.trim() || isSubmitting}
                       variant={dialogAction === "shutdown" ? "destructive" : "default"}
                     >
-                      Confirm
+                      {isSubmitting ? "Submitting..." : "Confirm"}
                     </Button>
                   </div>
                 </div>
