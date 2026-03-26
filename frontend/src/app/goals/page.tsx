@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { getGoalRuns, runTargetSweep } from "@/lib/api"
 import { useGoalStream } from "@/hooks/use-goal-stream"
 import type { GoalConfig, GoalTrade, GoalRunResult } from "@/hooks/use-goal-stream"
 import {
@@ -23,8 +24,6 @@ import {
   Calendar,
   ShieldAlert,
 } from "lucide-react"
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
 // ---------------------------------------------------------------------------
 // Tab selector
@@ -296,11 +295,10 @@ function ActiveGoalsTab() {
   const loadGoals = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/api/goals/runs`)
-      if (res.ok) {
-        const data = await res.json()
-        setGoals(data)
-      }
+      const data = await getGoalRuns()
+      setGoals(data)
+    } catch {
+      // Silently handle fetch errors
     } finally {
       setLoading(false)
     }
@@ -360,15 +358,10 @@ function TargetSweepTab() {
   const runSweep = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/api/goals/target-sweep`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker, capital: 1000, timeframe_days: 5, max_loss_pct: 0.01 }),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setSweepResult(data)
-      }
+      const data = await runTargetSweep({ ticker, capital: 1000, timeframe_days: 5, max_loss_pct: 0.01 })
+      setSweepResult(data as SweepResult)
+    } catch {
+      // Silently handle fetch errors
     } finally {
       setLoading(false)
     }

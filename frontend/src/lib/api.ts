@@ -1,8 +1,17 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || ""
+
+export function getHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" }
+  if (API_KEY) {
+    headers["X-API-Key"] = API_KEY
+  }
+  return headers
+}
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${endpoint}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: getHeaders(),
     ...options,
   })
   if (!res.ok) {
@@ -140,3 +149,9 @@ export const cancelAllOrders = () =>
   fetchAPI("/api/emergency/cancel-all-orders", { method: "POST" })
 export const forcePaperMode = () =>
   fetchAPI("/api/emergency/force-paper-mode", { method: "POST" })
+
+// Goals
+export const getGoalRuns = () =>
+  fetchAPI<import("@/hooks/use-goal-stream").GoalRunResult[]>("/api/goals/runs")
+export const runTargetSweep = (data: { ticker: string; capital: number; timeframe_days: number; max_loss_pct: number }) =>
+  fetchAPI<unknown>("/api/goals/target-sweep", { method: "POST", body: JSON.stringify(data) })
