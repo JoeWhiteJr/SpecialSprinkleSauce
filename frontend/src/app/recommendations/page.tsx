@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { DashboardShell } from "@/components/dashboard-shell"
 import {
   Card,
@@ -22,6 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRecommendations } from "@/hooks/use-api"
+import * as api from "@/lib/api"
 import { mockRecommendations } from "@/lib/mock-data"
 import { formatDateTime, cn } from "@/lib/utils"
 import type { TradeRecommendation } from "@/lib/types"
@@ -86,7 +87,15 @@ function WasdenVerdictBadge({ verdict }: { verdict: string }) {
   return <Badge variant={variant}>{verdict}</Badge>
 }
 
-function RecommendationCard({ rec }: { rec: TradeRecommendation }) {
+function RecommendationCard({
+  rec,
+  onReview,
+  isReviewing,
+}: {
+  rec: TradeRecommendation
+  onReview: (id: string, action: string) => void
+  isReviewing: boolean
+}) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-3">
@@ -135,11 +144,23 @@ function RecommendationCard({ rec }: { rec: TradeRecommendation }) {
       <CardFooter className="pt-4">
         {rec.status === "pending" ? (
           <div className="flex w-full gap-2">
-            <Button className="flex-1" variant="default" size="sm">
+            <Button
+              className="flex-1"
+              variant="default"
+              size="sm"
+              disabled={isReviewing}
+              onClick={() => onReview(rec.id, "approved")}
+            >
               <Check className="mr-1 h-4 w-4" />
               Approve
             </Button>
-            <Button className="flex-1" variant="destructive" size="sm">
+            <Button
+              className="flex-1"
+              variant="destructive"
+              size="sm"
+              disabled={isReviewing}
+              onClick={() => onReview(rec.id, "rejected")}
+            >
               <X className="mr-1 h-4 w-4" />
               Reject
             </Button>
@@ -178,7 +199,20 @@ function RecommendationCard({ rec }: { rec: TradeRecommendation }) {
 
 export default function RecommendationsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
-  const { data: apiRecs, isLoading } = useRecommendations()
+  const [reviewingId, setReviewingId] = useState<string | null>(null)
+  const { data: apiRecs, isLoading, mutate } = useRecommendations()
+
+  const handleReview = useCallback(async (id: string, action: string) => {
+    setReviewingId(id)
+    try {
+      await api.reviewRecommendation(id, action, "")
+      await mutate()
+    } catch (err) {
+      console.error("Failed to review recommendation:", err)
+    } finally {
+      setReviewingId(null)
+    }
+  }, [mutate])
 
   const recommendations = apiRecs ?? mockRecommendations
 
@@ -232,7 +266,12 @@ export default function RecommendationsPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((rec) => (
-              <RecommendationCard key={rec.id} rec={rec} />
+              <RecommendationCard
+                key={rec.id}
+                rec={rec}
+                onReview={handleReview}
+                isReviewing={reviewingId === rec.id}
+              />
             ))}
           </div>
         )}
