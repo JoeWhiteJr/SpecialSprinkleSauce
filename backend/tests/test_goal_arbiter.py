@@ -271,6 +271,55 @@ class TestGoalArbiter:
         assert len(trades) == 1
         assert trades[0].target_exit_price > trades[0].entry_price_est
 
+    def test_hold_action_skipped(self):
+        """HOLD tickers are excluded from the trade plan (not silently converted to BUY)."""
+        config = _make_config(capital=10000.0)
+        state = _make_state(
+            config=config,
+            allocations=[
+                {"ticker": "NVDA", "allocation_pct": 50},
+                {"ticker": "PYPL", "allocation_pct": 50},
+            ],
+            ticker_results={
+                "NVDA": {"final_action": "BUY", "recommended_position_size": 0.10, "price": 200.0},
+                "PYPL": {"final_action": "HOLD", "recommended_position_size": 0.05, "price": 70.0},
+            },
+        )
+
+        trades = GoalArbiter.build_trade_plan(state)
+        tickers_in_plan = [t.ticker for t in trades]
+        assert "NVDA" in tickers_in_plan
+        assert "PYPL" not in tickers_in_plan, "HOLD should be skipped, not converted to BUY"
+
+    def test_unexpected_action_skipped(self):
+        """Unknown action values are skipped, not converted to BUY."""
+        config = _make_config(capital=10000.0)
+        state = _make_state(
+            config=config,
+            allocations=[{"ticker": "NVDA", "allocation_pct": 50}],
+            ticker_results={
+                "NVDA": {"final_action": "WAIT", "recommended_position_size": 0.10, "price": 200.0},
+            },
+        )
+
+        trades = GoalArbiter.build_trade_plan(state)
+        assert trades == [], "Unexpected action 'WAIT' should not produce a trade"
+
+    def test_sell_action_preserved(self):
+        """SELL actions are kept as-is in the trade plan."""
+        config = _make_config(capital=10000.0)
+        state = _make_state(
+            config=config,
+            allocations=[{"ticker": "NVDA", "allocation_pct": 50}],
+            ticker_results={
+                "NVDA": {"final_action": "SELL", "recommended_position_size": 0.10, "price": 200.0},
+            },
+        )
+
+        trades = GoalArbiter.build_trade_plan(state)
+        assert len(trades) == 1
+        assert trades[0].action == "SELL"
+
     def test_config_required(self):
         """build_trade_plan raises if config is None."""
         state = GoalState()

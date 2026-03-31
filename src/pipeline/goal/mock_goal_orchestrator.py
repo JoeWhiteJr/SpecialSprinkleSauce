@@ -6,6 +6,7 @@ import logging
 
 from .goal_arbiter import GoalArbiter
 from .goal_state import (
+    GOAL_STATUS_ACTIVE,
     GOAL_STATUS_PLANNING,
     GoalConfig,
     GoalState,
@@ -105,7 +106,7 @@ class MockGoalOrchestrator:
         # Step 5: Set remaining state
         state.remaining_capital = config.capital - sum(t.position_dollar for t in state.trade_plan)
         state.remaining_target_pct = config.target_return_pct
-        state.status = "active"
+        state.status = GOAL_STATUS_ACTIVE
 
         logger.info(
             f"[MockGoal] Complete — {len(state.trade_plan)} trades planned, "

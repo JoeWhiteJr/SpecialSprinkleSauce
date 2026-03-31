@@ -175,6 +175,8 @@ def _size_single_trade(
     target_exit_price = round(entry_price * (1 + contribution_pct), 2)
 
     action = _resolve_action(result)
+    if action is None:
+        return None
 
     return GoalTrade(
         ticker=ticker,
@@ -189,9 +191,17 @@ def _size_single_trade(
     )
 
 
-def _resolve_action(result: dict) -> str:
-    """Determine trade action from pipeline result."""
+def _resolve_action(result: dict) -> str | None:
+    """Determine trade action from pipeline result.
+
+    Returns:
+        "BUY" or "SELL" for actionable trades, None for HOLD or unexpected values.
+    """
     action = result.get("final_action", "HOLD")
     if action in ("BUY", "SELL"):
         return action
-    return "BUY"  # Default to BUY for goal-based trades that passed pipeline
+    if action == "HOLD":
+        logger.info("[GoalArbiter] Action is HOLD — skipping trade")
+        return None
+    logger.warning(f"[GoalArbiter] Unexpected action value '{action}' — skipping trade")
+    return None
