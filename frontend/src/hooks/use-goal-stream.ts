@@ -1,8 +1,7 @@
 "use client"
 
 import { useCallback, useReducer, useRef } from "react"
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+import { API_URL, getHeaders } from "@/lib/api"
 
 export interface GoalConfig {
   capital: number
@@ -97,7 +96,7 @@ export function useGoalStream() {
     try {
       const res = await fetch(`${API_URL}/api/goals/run-stream`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getHeaders(),
         body: JSON.stringify(config),
         signal: controller.signal,
       })

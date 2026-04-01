@@ -2,8 +2,7 @@
 
 import { useCallback, useReducer, useRef } from "react"
 import type { PipelineNodeState, PipelineStreamEvent } from "@/lib/types"
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+import { API_URL, getHeaders } from "@/lib/api"
 
 const INITIAL_NODES: PipelineNodeState[] = [
   { name: "quant_scoring", label: "Quant Scoring", index: 0, status: "pending", data: null, skipReason: null, durationMs: null },
@@ -96,7 +95,7 @@ export function usePipelineStream() {
     try {
       const res = await fetch(`${API_URL}/api/pipeline/run-stream`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getHeaders(),
         body: JSON.stringify({ ticker, price: price || 0.0 }),
         signal: controller.signal,
       })
