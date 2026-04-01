@@ -11,6 +11,7 @@ COPY . .
 ENV NEXT_PUBLIC_API_URL=http://localhost:8000
 
 RUN groupadd -r nodejs && useradd -r -g nodejs -m nodejs
+RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 EXPOSE 3000

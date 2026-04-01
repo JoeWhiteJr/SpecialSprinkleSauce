@@ -53,3 +53,6 @@ data/**/*.xlsx
 data/**/*.json
 !data/**/.gitkeep
 !data/wasden_corpus/**
+
+# Dev-cycle workflow artifacts
+.workflow/

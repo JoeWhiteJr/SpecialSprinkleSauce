@@ -451,3 +451,93 @@ export interface PipelineStreamEvent {
   error?: string
   timestamp: string
 }
+
+// Training Lab
+export interface Experiment {
+  id: string
+  user_name: string
+  experiment_type: string
+  name: string
+  description: string | null
+  parameters: Record<string, unknown>
+  results: Record<string, unknown>
+  notes: string | null
+  status: "pending" | "running" | "completed" | "failed" | "cancelled"
+  phase: string | null
+  data_source: string | null
+  mlflow_run_id: string | null
+  snapshots?: ModelSnapshot[]
+  created_at: string
+  updated_at: string
+}
+
+export interface SweepDataPoint {
+  value: number
+  win_rate: number
+  sharpe_ratio: number
+  max_drawdown: number
+  accuracy: number
+  profit_factor: number
+  sortino_ratio: number
+  total_trades: number
+}
+
+export interface ParameterSweepResult {
+  parameter_name: string
+  parameter_category: string
+  values_tested: number[]
+  results_per_value: SweepDataPoint[]
+  best_value: number | null
+  best_metric_name: string
+  best_metric_value: number | null
+  started_at: string
+  completed_at: string
+}
+
+export interface ModelSnapshot {
+  id: string
+  experiment_id: string
+  model_name: string
+  metrics: Record<string, number>
+  parameters: Record<string, unknown>
+  artifact_path: string | null
+  is_baseline: boolean
+  data_source: string | null
+  data_range: string | null
+  created_at: string
+}
+
+export interface ParameterChangeProposal {
+  id: string
+  experiment_id: string | null
+  parameter_name: string
+  parameter_category: string
+  current_value: number
+  proposed_value: number
+  metric_before: Record<string, number>
+  metric_after: Record<string, number>
+  reason: string | null
+  status: "pending" | "joe_approved" | "jared_approved" | "applied" | "rejected" | "rolled_back"
+  requires_dual_approval: boolean
+  joe_approved_at: string | null
+  jared_approved_at: string | null
+  applied_at: string | null
+  created_at: string
+}
+
+export interface ParameterBound {
+  min_value: number
+  max_value: number
+  step_size: number
+  category: string
+  description: string
+}
+
+export interface StressTestResult {
+  regime: string
+  label: string
+  date_range: string
+  model_results: Record<string, { win_rate: number; max_drawdown: number; sharpe_ratio: number }>
+  circuit_breaker_triggered: boolean
+  data_source: string
+}
