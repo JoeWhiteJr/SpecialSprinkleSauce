@@ -72,13 +72,32 @@ async def submit_order(request: Request, req: OrderRequest):
     from app.services.execution.order_state_machine import Order, order_to_dict
     from app.services.execution.alpaca_client import AlpacaClient
 
+    # Fetch real account values for risk calculations
+    client = AlpacaClient()
+    try:
+        account_info = client.get_account()
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Failed to fetch account info for risk checks: {e}",
+        )
+
+    if "error" in account_info:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Account unavailable: {account_info['error']}",
+        )
+
+    portfolio_value = float(account_info["portfolio_value"])
+    cash_balance = float(account_info["cash"])
+
     # Pre-trade validation
     ptc = PreTradeContext(
         ticker=req.ticker,
         side=req.side,
         quantity=req.quantity,
         price=req.price,
-        portfolio_value=100_000,
+        portfolio_value=portfolio_value,
     )
     ptv_result = run_pre_trade_validation(ptc)
     if not ptv_result["passed"]:
@@ -88,12 +107,12 @@ async def submit_order(request: Request, req: OrderRequest):
         )
 
     # Risk checks
-    position_pct = (req.quantity * req.price) / 100_000
+    position_pct = (req.quantity * req.price) / portfolio_value
     rc = RiskContext(
         ticker=req.ticker,
         proposed_position_pct=position_pct,
-        portfolio_value=100_000,
-        cash_balance=35_000,
+        portfolio_value=portfolio_value,
+        cash_balance=cash_balance,
     )
     risk_result = run_risk_checks(rc)
     if not risk_result["passed"]:
@@ -112,7 +131,6 @@ async def submit_order(request: Request, req: OrderRequest):
         risk_check_result=risk_result,
         pre_trade_result=ptv_result,
     )
-    client = AlpacaClient()
     order = client.submit_order(order)
     return order_to_dict(order)
 
