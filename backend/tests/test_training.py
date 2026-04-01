@@ -10,7 +10,7 @@ from app.services.training.auto_tuner import (
     requires_dual_approval,
     get_parameters_by_category,
 )
-from app.services.training.sweep_runner import SweepRunner, STRESS_REGIMES
+from app.services.training.sweep_runner import SweepRunner
 from app.services.training.experiment_service import ExperimentService
 from app.services.training.export_service import ExportService
 
