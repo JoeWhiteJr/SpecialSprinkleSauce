@@ -34,6 +34,7 @@ from app.routers import (
     rebalancing,
     reports,
     goals,
+    training,
 )
 
 logger = logging.getLogger("wasden_watch")
@@ -95,7 +96,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-API-Key"],
 )
 
-# Register all 23 routers
+# Register all 24 routers
 app.include_router(health.router)
 app.include_router(portfolio.router)
 app.include_router(recommendations.router)
@@ -119,3 +120,4 @@ app.include_router(notifications.router)
 app.include_router(rebalancing.router)
 app.include_router(reports.router)
 app.include_router(goals.router)
+app.include_router(training.router)

@@ -135,3 +135,40 @@ export function useEmergencyStatus() {
 export function useShutdownHistory() {
   return useSWR("shutdown-history", api.getShutdownHistory, defaultOptions)
 }
+
+// Training Lab
+export function useExperiments(params?: { user_name?: string; phase?: string; status?: string }) {
+  return useSWR(
+    ["experiments", params],
+    () => api.getExperiments(params),
+    defaultOptions
+  )
+}
+
+export function useExperiment(id: string | null) {
+  return useSWR(
+    id ? ["experiment", id] : null,
+    () => api.getExperiment(id!),
+    defaultOptions
+  )
+}
+
+export function useProposals(status?: string) {
+  return useSWR(
+    ["proposals", status],
+    () => api.getProposals(status),
+    defaultOptions
+  )
+}
+
+export function useBaselines() {
+  return useSWR("baselines", api.getBaselines, defaultOptions)
+}
+
+export function useParameters(category?: string) {
+  return useSWR(
+    ["parameters", category],
+    () => api.getParameters(category),
+    defaultOptions
+  )
+}

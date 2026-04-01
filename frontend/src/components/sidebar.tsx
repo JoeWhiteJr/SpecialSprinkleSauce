@@ -21,6 +21,7 @@ import {
   ShieldOff,
   Workflow,
   Target,
+  FlaskConical,
 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -41,6 +42,7 @@ const navGroups = [
       { href: "/debates", label: "Debates", icon: MessageSquare },
       { href: "/jury", label: "Jury Votes", icon: Users },
       { href: "/backtesting", label: "Backtesting", icon: TestTube2 },
+      { href: "/training", label: "Training Lab", icon: FlaskConical },
       { href: "/rebalancing", label: "Rebalancing", icon: Scale },
       { href: "/reports", label: "Reports", icon: FileText },
     ],

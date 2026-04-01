@@ -140,3 +140,48 @@ export const cancelAllOrders = () =>
   fetchAPI("/api/emergency/cancel-all-orders", { method: "POST" })
 export const forcePaperMode = () =>
   fetchAPI("/api/emergency/force-paper-mode", { method: "POST" })
+
+// Training Lab
+export const getExperiments = (params?: { user_name?: string; phase?: string; status?: string; limit?: number }) => {
+  const searchParams = new URLSearchParams()
+  if (params?.user_name) searchParams.set("user_name", params.user_name)
+  if (params?.phase) searchParams.set("phase", params.phase)
+  if (params?.status) searchParams.set("status", params.status)
+  if (params?.limit) searchParams.set("limit", params.limit.toString())
+  const qs = searchParams.toString()
+  return fetchAPI<import("./types").Experiment[]>(`/api/training/experiments${qs ? `?${qs}` : ""}`)
+}
+export const getExperiment = (id: string) =>
+  fetchAPI<import("./types").Experiment>(`/api/training/experiments/${id}`)
+export const createExperiment = (data: { user_name: string; experiment_type: string; name: string; description?: string; parameters?: Record<string, unknown>; data_source?: string; phase?: string }) =>
+  fetchAPI<import("./types").Experiment>("/api/training/experiments", { method: "POST", body: JSON.stringify(data) })
+export const updateExperiment = (id: string, data: { results?: Record<string, unknown>; notes?: string; status?: string }) =>
+  fetchAPI<import("./types").Experiment>(`/api/training/experiments/${id}`, { method: "PUT", body: JSON.stringify(data) })
+export const runSweep = (data: { parameter_name: string; data_source?: string; optimize_metric?: string }) =>
+  fetchAPI<import("./types").ParameterSweepResult>("/api/training/sweeps", { method: "POST", body: JSON.stringify(data) })
+export const runEnsembleSweep = (data: { data_source?: string; grid_step?: number }) =>
+  fetchAPI<Array<Record<string, unknown>>>("/api/training/sweeps/ensemble", { method: "POST", body: JSON.stringify(data) })
+export const runStressTest = (data: { regime: string; data_source?: string }) =>
+  fetchAPI<import("./types").StressTestResult>("/api/training/sweeps/stress-test", { method: "POST", body: JSON.stringify(data) })
+export const getStressRegimes = () =>
+  fetchAPI<Record<string, { start: string; end: string; label: string }>>("/api/training/sweeps/stress-regimes")
+export const getParameters = (category?: string) =>
+  fetchAPI<Record<string, import("./types").ParameterBound>>(`/api/training/parameters${category ? `?category=${category}` : ""}`)
+export const runAutoTune = (data: { category: string; data_source?: string; optimize_metric?: string }) =>
+  fetchAPI<import("./types").ParameterChangeProposal[]>("/api/training/auto-tune", { method: "POST", body: JSON.stringify(data) })
+export const getProposals = (status?: string) =>
+  fetchAPI<import("./types").ParameterChangeProposal[]>(`/api/training/proposals${status ? `?status=${status}` : ""}`)
+export const approveProposal = (id: string, user_name: string) =>
+  fetchAPI<import("./types").ParameterChangeProposal>(`/api/training/proposals/${id}/approve`, { method: "POST", body: JSON.stringify({ user_name }) })
+export const rejectProposal = (id: string) =>
+  fetchAPI<import("./types").ParameterChangeProposal>(`/api/training/proposals/${id}/reject`, { method: "POST" })
+export const rollbackProposal = (id: string) =>
+  fetchAPI<import("./types").ParameterChangeProposal>(`/api/training/proposals/${id}/rollback`, { method: "POST" })
+export const getBaselines = () =>
+  fetchAPI<import("./types").ModelSnapshot[]>("/api/training/baselines")
+export const compareExperiments = (ids: string[]) =>
+  fetchAPI<import("./types").Experiment[]>(`/api/training/compare?ids=${ids.join(",")}`)
+export const compareUsers = (experimentType: string) =>
+  fetchAPI<{ joe: import("./types").Experiment[]; jared: import("./types").Experiment[] }>(`/api/training/compare-users?experiment_type=${experimentType}`)
+export const getParameterHistory = () =>
+  fetchAPI<Array<Record<string, unknown>>>("/api/training/history")

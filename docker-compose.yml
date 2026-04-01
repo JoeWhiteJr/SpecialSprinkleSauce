@@ -10,10 +10,12 @@ services:
     environment:
       - TRADING_MODE=paper
       - USE_MOCK_DATA=true
+      - PYTHONPATH=/app
     env_file:
       - .env
     volumes:
       - ./backend/app:/app/app  # hot reload
+      - ./src:/app/src          # shared pipeline modules
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
