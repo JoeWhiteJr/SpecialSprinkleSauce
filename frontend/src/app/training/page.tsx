@@ -146,6 +146,7 @@ function ExperimentsTab() {
   const [showForm, setShowForm] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Form state
   const [userName, setUserName] = useState("joe")
@@ -158,6 +159,7 @@ function ExperimentsTab() {
   const handleSubmit = async () => {
     if (!expType || !expName) return
     setSubmitting(true)
+    setError(null)
     try {
       await api.createExperiment({
         user_name: userName,
@@ -172,6 +174,8 @@ function ExperimentsTab() {
       setExpName("")
       setExpDesc("")
       setExpType("")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setSubmitting(false)
     }
@@ -186,6 +190,13 @@ function ExperimentsTab() {
           New Experiment
         </Button>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+          {error}
+          <button className="ml-2 underline" onClick={() => setError(null)}>Dismiss</button>
+        </div>
+      )}
 
       {/* New experiment form */}
       {showForm && (
@@ -369,10 +380,12 @@ function SweepsTab() {
   const [metric, setMetric] = useState("win_rate")
   const [sweepResult, setSweepResult] = useState<ParameterSweepResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleRunSweep = async () => {
     if (!paramName) return
     setLoading(true)
+    setError(null)
     try {
       const result = await api.runSweep({
         parameter_name: paramName,
@@ -380,6 +393,8 @@ function SweepsTab() {
         optimize_metric: metric,
       })
       setSweepResult(result)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setLoading(false)
     }
@@ -445,6 +460,13 @@ function SweepsTab() {
           </div>
         </CardContent>
       </Card>
+
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+          {error}
+          <button className="ml-2 underline" onClick={() => setError(null)}>Dismiss</button>
+        </div>
+      )}
 
       {sweepResult && (
         <>
@@ -744,12 +766,17 @@ function ApprovalsTab() {
 
   const [approveUser, setApproveUser] = useState("joe")
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [exportError, setExportError] = useState<string | null>(null)
 
   const handleApprove = async (id: string) => {
     setProcessingId(id)
+    setError(null)
     try {
       await api.approveProposal(id, approveUser)
       await mutate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setProcessingId(null)
     }
@@ -757,11 +784,33 @@ function ApprovalsTab() {
 
   const handleReject = async (id: string) => {
     setProcessingId(id)
+    setError(null)
     try {
       await api.rejectProposal(id)
       await mutate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setProcessingId(null)
+    }
+  }
+
+  const handleExport = async (format: "csv" | "xlsx") => {
+    setExportError(null)
+    try {
+      const res = await fetch(`${API_URL}/api/training/export/experiments?format=${format}`, {
+        headers: { "Content-Type": "application/json" },
+      })
+      if (!res.ok) throw new Error(`Export failed: ${res.statusText}`)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `experiments.${format}`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Export failed")
     }
   }
 
@@ -778,6 +827,13 @@ function ApprovalsTab() {
           </SelectContent>
         </Select>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+          {error}
+          <button className="ml-2 underline" onClick={() => setError(null)}>Dismiss</button>
+        </div>
+      )}
 
       {/* Proposals table */}
       <Card>
@@ -827,18 +883,20 @@ function ApprovalsTab() {
           <CardDescription>Download experiment data for offline analysis.</CardDescription>
         </CardHeader>
         <CardContent>
+          {exportError && (
+            <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+              {exportError}
+              <button className="ml-2 underline" onClick={() => setExportError(null)}>Dismiss</button>
+            </div>
+          )}
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2" asChild>
-              <a href={`${API_URL}/api/training/export/experiments?format=csv`} download>
-                <Download className="h-4 w-4" />
-                Export CSV
-              </a>
+            <Button variant="outline" className="gap-2" onClick={() => handleExport("csv")}>
+              <Download className="h-4 w-4" />
+              Export CSV
             </Button>
-            <Button variant="outline" className="gap-2" asChild>
-              <a href={`${API_URL}/api/training/export/experiments?format=xlsx`} download>
-                <Download className="h-4 w-4" />
-                Export XLSX
-              </a>
+            <Button variant="outline" className="gap-2" onClick={() => handleExport("xlsx")}>
+              <Download className="h-4 w-4" />
+              Export XLSX
             </Button>
           </div>
         </CardContent>
