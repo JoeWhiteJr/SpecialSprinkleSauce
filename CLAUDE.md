@@ -50,3 +50,10 @@ When the user finishes coding, suggest `/ship` to handle the full git workflow. 
 - `docs/PROJECT_STANDARDS_v2.md` — Decision journal schema, risk constants, data freshness grades
 - `docs/CLAUDE_v2.md` — Protected components, TRADING_MODE rules
 - `docs/KNOWLEDGE_BASE_v2.md` — Bloomberg snapshot, dashboard views, pilot tickers
+
+## Task Tracking
+Track tasks as GitHub Issues, not local files. Use `/create-ticket` to create issues from Claude Code.
+- List open issues: `gh issue list`
+- View issue: `gh issue view <number>`
+- Close issue: `gh issue close <number>`
+- Link to PR: include `Closes #<number>` in the PR description
