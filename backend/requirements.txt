@@ -10,26 +10,26 @@ pydantic-settings==2.7.1
 supabase==2.12.0
 httpx==0.27.0
 openpyxl==3.1.5
-python-multipart==0.0.27
+python-multipart==0.0.28
 
 # Wasden Watch RAG pipeline
 pymupdf==1.25.3
 chromadb==0.6.3
 anthropic==0.43.0
-google-generativeai==0.8.4
+google-generativeai==0.8.6
 tiktoken==0.9.0
 sentence-transformers==3.4.1
 colorama==0.4.6
 
 # Week 3 screening + Week 8 risk/execution
-finnhub-python==2.4.20
+finnhub-python==2.4.28
 yfinance==0.2.36
 alpaca-py==0.33.1
 
 # Week 5 quant models
 scikit-learn==1.6.1
 xgboost==2.1.4
-statsmodels==0.14.4
+statsmodels==0.14.6
 newsapi-python==0.2.7
 
 # Week 7 decision pipeline
