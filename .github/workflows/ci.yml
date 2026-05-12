@@ -192,3 +192,96 @@ jobs:
           path: frontend/coverage
           if-no-files-found: ignore
           retention-days: 14
+
+  # Dependency Vulnerability Scan (Python + Node)
+  # Fails CI on known CVEs in production dependencies.
+  # - Python: pip-audit against OSV.dev (no GitHub token required)
+  # - Node:   npm audit, HIGH/CRITICAL only, prod deps only
+  # Triage workflow on failure: bump version if safe, otherwise add the
+  # advisory ID to .github/pip-audit-allowlist.txt with a dated rationale.
+  security:
+    name: Security (Dependency Vuln Scan)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install pip-audit
+        run: python -m pip install --upgrade pip pip-audit
+
+      - name: Run pip-audit (Python deps, OSV database, strict)
+        run: |
+          # Build --ignore-vuln flags from the allowlist file, if any
+          # non-comment, non-blank entries exist.
+          IGNORE_FLAGS=""
+          ALLOWLIST=".github/pip-audit-allowlist.txt"
+          if [ -f "$ALLOWLIST" ]; then
+            while IFS= read -r line; do
+              # strip inline comments and surrounding whitespace
+              entry="$(printf '%s\n' "$line" | sed -e 's/#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              if [ -n "$entry" ]; then
+                IGNORE_FLAGS="$IGNORE_FLAGS --ignore-vuln $entry"
+              fi
+            done < "$ALLOWLIST"
+          fi
+          echo "pip-audit ignore flags: ${IGNORE_FLAGS:-<none>}"
+          # shellcheck disable=SC2086
+          pip-audit -r backend/requirements.txt --strict --vulnerability-service osv $IGNORE_FLAGS
+
+      - name: Run npm audit (frontend production deps, HIGH+ with allowlist)
+        working-directory: frontend
+        run: |
+          # npm audit doesn't have a native --ignore-id flag, so we run it,
+          # capture JSON output, and compare advisory URLs against the
+          # repo allowlist at .github/npm-audit-allowlist.txt. Mirrors the
+          # pip-audit allowlist pattern for consistency.
+          set +e
+          npm audit --omit=dev --json > /tmp/npm-audit.json
+          AUDIT_EXIT=$?
+          set -e
+
+          # Parse allowlist (one GHSA-* per non-blank, non-comment line)
+          ALLOWLIST="../.github/npm-audit-allowlist.txt"
+          ALLOW_IDS=""
+          if [ -f "$ALLOWLIST" ]; then
+            ALLOW_IDS=$(grep -v '^#' "$ALLOWLIST" 2>/dev/null \
+                        | sed -e 's/#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+                        | grep -v '^$' || true)
+          fi
+          ALLOW_COUNT=$(echo "$ALLOW_IDS" | grep -c '^GHSA-' || true)
+          echo "npm-audit allowlist entries: $ALLOW_COUNT"
+
+          # Pull all HIGH/CRITICAL advisory GHSA IDs from the audit output
+          FOUND_IDS=$(jq -r '
+            .vulnerabilities | to_entries | .[] |
+            select(.value.severity == "high" or .value.severity == "critical") |
+            .value.via[] | select(type == "object") | .url' /tmp/npm-audit.json \
+            | sed -E 's@.*/(GHSA-[a-z0-9-]+)$@\1@' | sort -u || true)
+
+          # Diff: anything in FOUND_IDS that's NOT in ALLOW_IDS = real failure
+          UNALLOWED=$(comm -23 <(echo "$FOUND_IDS") <(echo "$ALLOW_IDS" | sort -u))
+
+          if [ -n "$UNALLOWED" ]; then
+            echo "::error::Unallowlisted npm HIGH/CRITICAL advisories detected:"
+            echo "$UNALLOWED" | sed 's/^/  - /'
+            echo ""
+            echo "To fix:"
+            echo "  1. Try 'npm audit fix' or bump the parent dep"
+            echo "  2. If no safe fix path, add the GHSA ID to .github/npm-audit-allowlist.txt"
+            echo "     with a dated rationale and revisit-by date"
+            exit 1
+          fi
+          echo "All HIGH/CRITICAL npm advisories are allowlisted (or none present)."

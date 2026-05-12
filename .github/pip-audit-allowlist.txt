@@ -1,0 +1,88 @@
+# pip-audit allowlist for Wasden Watch
+#
+# Purpose: explicitly ignore specific CVE / advisory IDs that have been
+# triaged and accepted as "no safe upgrade path right now". This file is
+# consumed by the `security` job in .github/workflows/ci.yml.
+#
+# Format (one entry per non-blank, non-comment line):
+#     <VULN_ID>     # YYYY-MM-DD  rationale (revisit by YYYY-MM-DD)
+#
+# Examples:
+#     GHSA-xxxx-xxxx-xxxx   # 2026-05-11  pinned old mlflow; bump blocked by
+#                           #             breaking change in tracking API.
+#                           #             Revisit by 2026-06-30.
+#     PYSEC-2024-12345      # 2026-05-11  transitive dep, no fix available.
+#                           #             Revisit when upstream releases fix.
+#
+# Rules:
+#   1. Every entry MUST have a dated rationale and a revisit-by date.
+#   2. Prefer bumping the version over allowlisting whenever the upgrade
+#      path is safe. Allowlist is the escape hatch, not the default.
+#   3. Re-review every entry at least quarterly.
+#
+# When this file is empty (only comments), pip-audit runs WITHOUT any
+# --ignore-vuln flags (strict mode against the full OSV database).
+#
+# ---------------------------------------------------------------------------
+# 2026-05-11 triage of PR #36 pip-audit findings
+# ---------------------------------------------------------------------------
+# 47 of 63 CVEs resolved by direct + transitive bumps in backend/requirements.txt.
+# 16 residual CVEs allowlisted below — three categories:
+#
+#   A. mlflow tracking-server CVEs. We use mlflow ONLY as a Python tracking
+#      client (src/intelligence/quant_models/mlflow_tracking.py) and never run
+#      `mlflow server` / `mlflow ui` in production. These CVEs require an
+#      attacker to reach the MLflow web app; not in our threat model.
+#      Fix path is mlflow 3.x (major bump) or unreleased / RC versions.
+#      Per triage guidance, holding at 2.22.4 (latest 2.x).
+#
+#   B. starlette CVE-2025-62727. Fix is starlette 0.49.1 but fastapi 0.119.1
+#      pins starlette<0.49.0. Bumping fastapi to >=0.124.0 unblocks this.
+#      Holding for a separate, scoped fastapi-bump PR.
+#
+#   C. transformers CVE-2026-1839. Affects the `Trainer` class, which we do
+#      not import (we use sentence-transformers for embeddings only — no
+#      training). Fix is 5.0.0rc3, an RC, which violates the "no RCs in prod"
+#      rule. Revisit when transformers 5.0.0 ships GA.
+#
+# All entries below revisit by 2026-06-10 (30 days from triage date).
+
+# --- Category A: mlflow tracking-server CVEs (client-only deployment) ---
+PYSEC-2025-52      # 2026-05-11  mlflow server CVE; we run client-only. Fix in 3.1.0 (major bump). Revisit by 2026-06-10.
+CVE-2026-33866     # 2026-05-11  mlflow server CVE; no fix listed. Revisit by 2026-06-10.
+CVE-2025-10279     # 2026-05-11  mlflow server CVE; only RC fix (3.4.0rc0). Revisit by 2026-06-10.
+CVE-2026-0545      # 2026-05-11  mlflow server CVE; no fix listed. Revisit by 2026-06-10.
+CVE-2026-33865     # 2026-05-11  mlflow server CVE; fix in 3.11.1 (major bump). Revisit by 2026-06-10.
+CVE-2025-15031     # 2026-05-11  mlflow server CVE; only RC fix (3.9.0rc0). Revisit by 2026-06-10.
+CVE-2025-15381     # 2026-05-11  mlflow server CVE; no fix listed. Revisit by 2026-06-10.
+CVE-2026-2635      # 2026-05-11  mlflow server CVE; only RC fix (3.8.0rc0). Revisit by 2026-06-10.
+CVE-2025-14279     # 2026-05-11  mlflow server CVE; fix in 3.5.0 (major bump). Revisit by 2026-06-10.
+CVE-2026-2033      # 2026-05-11  mlflow server CVE; only RC fix (3.8.0rc0). Revisit by 2026-06-10.
+CVE-2025-15379     # 2026-05-11  mlflow server CVE; fix in 3.8.1 (major bump). Revisit by 2026-06-10.
+CVE-2025-15036     # 2026-05-11  mlflow server CVE; only RC fix (3.9.0rc0). Revisit by 2026-06-10.
+CVE-2024-37059     # 2026-05-11  mlflow server CVE; no fix listed. Revisit by 2026-06-10.
+CVE-2025-14287     # 2026-05-11  mlflow server CVE; only RC fix (3.8.0rc0). Revisit by 2026-06-10.
+
+# --- Category B: starlette pinned by fastapi parent ---
+CVE-2025-62727     # 2026-05-11  starlette 0.49.1 fix blocked by fastapi 0.119.1 starlette<0.49 pin. Bump fastapi to >=0.124.0 in follow-up PR. Revisit by 2026-06-10.
+
+# --- Category C: transformers Trainer CVE (unused code path) ---
+CVE-2026-1839      # 2026-05-11  affects HF Trainer class; we use sentence-transformers for embeddings only, no Trainer import. Fix is 5.0.0rc3 (RC, blocked by no-RC-in-prod rule). Revisit when transformers 5.0.0 GA ships, by 2026-06-10.
+
+# --- Category D: langgraph cluster (deferred to task #51 — coordinated port) ---
+# These four packages (langgraph + langchain-core + langgraph-checkpoint +
+# langsmith) must move TOGETHER. langgraph 0.2 -> 1.0.10 changes the StateGraph
+# API and node signatures, requiring code edits in src/pipeline/decision_pipeline.py
+# and src/pipeline/streaming_pipeline.py. Tracked as task #51 in TODO.md.
+# Revisit by 2026-05-25 (14 days from triage). If task #51 hasn't landed by then:
+# either bump the deadline with a written reason, OR commit to the port immediately.
+CVE-2026-28277     # 2026-05-11  langgraph 0.2.0; fix in 1.0.10 requires StateGraph + node-signature port. See task #51. Revisit by 2026-05-25.
+CVE-2026-26013     # 2026-05-11  langchain-core 0.2.43; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2025-65106     # 2026-05-11  langchain-core 0.2.43; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2026-40087     # 2026-05-11  langchain-core 0.2.43; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2025-68664     # 2026-05-11  langchain-core 0.2.43; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2026-44843     # 2026-05-11  langchain-core 0.2.43; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2026-34070     # 2026-05-11  langchain-core 0.2.43; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2026-27794     # 2026-05-11  langgraph-checkpoint 1.0.12; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2025-64439     # 2026-05-11  langgraph-checkpoint 1.0.12; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
+CVE-2026-41182     # 2026-05-11  langsmith 0.1.147; rides with langgraph cluster (task #51). Revisit by 2026-05-25.
