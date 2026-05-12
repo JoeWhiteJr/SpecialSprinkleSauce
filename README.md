@@ -44,6 +44,19 @@ TRADING_MODE=paper uvicorn app.main:app --reload   # http://localhost:8000
 
 Copy `.env.example` to `.env` and fill in values. `TRADING_MODE` is required — system halts if unset.
 
+## Pre-Commit Hooks
+
+After cloning, install the local safety hooks once:
+
+```bash
+make hooks-install
+```
+
+This wires up `pre-commit` (gitleaks secret scan, ruff lint/format, YAML/JSON
+validation, large-file guard, no-direct-commits-to-main, etc.) plus the
+frontend `lint-staged` runner. See [`docs/PRE_COMMIT.md`](docs/PRE_COMMIT.md)
+for the full list and bypass policy.
+
 ## Deployment
 
 - **Frontend** → Vercel (root directory: `frontend/`)

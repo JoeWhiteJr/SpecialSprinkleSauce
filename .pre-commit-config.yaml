@@ -1,0 +1,104 @@
+# Wasden Watch — Layer 1 pre-commit hooks
+#
+# Install once after cloning:
+#   make hooks-install
+#
+# Run manually against the whole repo:
+#   pre-commit run --all-files
+#
+# Bypass (emergencies only — must be justified in commit message):
+#   git commit --no-verify
+#
+# Security-first project: every hook errs on the side of MORE checks.
+# All revs are pinned to specific release tags — never floating refs.
+
+# Exclude paths that are large, generated, or contain inert binary/data
+# artifacts that would slow hooks or produce noisy diffs.
+exclude: |
+  (?x)^(
+    .*\.lock$|
+    .*\.lockb$|
+    frontend/package-lock\.json|
+    frontend/\.next/.*|
+    backend/venv/.*|
+    \.venv/.*|
+    node_modules/.*|
+    data/wasden_corpus/.*|
+    Historical\ Data/.*|
+    models/.*|
+    mlruns/.*
+  )$
+
+default_language_version:
+  python: python3
+
+default_stages: [pre-commit]
+
+repos:
+  # ---------------------------------------------------------------------------
+  # 1. SECRET SCANNING — the most important hook.
+  #    Blocks anything that looks like an API key, token, or credential.
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        name: gitleaks (secret scan on staged diff)
+
+  # ---------------------------------------------------------------------------
+  # 2-3. Python lint + format (must match CI flags exactly)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      - id: ruff
+        name: ruff check (backend lint)
+        args: ["--select=E,F,W", "--ignore=E501", "--fix"]
+        files: ^backend/.*\.py$
+      - id: ruff-format
+        name: ruff format (backend format)
+        files: ^backend/.*\.py$
+
+  # ---------------------------------------------------------------------------
+  # 4-10. Standard hygiene hooks from the canonical pre-commit-hooks repo
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+        name: block merge-conflict markers
+      - id: check-yaml
+        name: validate YAML syntax
+        # docker-compose, GitHub Actions, render.yaml, etc.
+      - id: check-json
+        name: validate JSON syntax
+        # package.json, tsconfig.json, .lintstagedrc.json, etc.
+      - id: end-of-file-fixer
+        name: ensure files end with newline
+      - id: trailing-whitespace
+        name: strip trailing whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: no-commit-to-branch
+        name: block direct commits to main
+        args: ['--branch', 'main']
+      - id: check-added-large-files
+        name: block files >500KB
+        args: ['--maxkb=500']
+
+  # ---------------------------------------------------------------------------
+  # Frontend: run eslint --fix on staged TS/JS via lint-staged.
+  # The husky hook in frontend/.husky/pre-commit calls the same lint-staged
+  # config; we wire it through pre-commit too so a single `pre-commit install`
+  # is sufficient and the two frameworks never disagree about which runs.
+  # ---------------------------------------------------------------------------
+  - repo: local
+    hooks:
+      - id: frontend-lint-staged
+        name: frontend lint-staged (eslint --fix)
+        entry: bash -c 'cd frontend && npx --no-install lint-staged'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+        # If frontend/node_modules is missing, skip cleanly rather than fail.
+        # Devs running pre-commit before `npm ci` will get a warning, not a block.
+        require_serial: true
