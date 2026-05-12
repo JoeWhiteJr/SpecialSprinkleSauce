@@ -51,8 +51,35 @@ backend/local/
 data/**/*.csv
 data/**/*.xlsx
 data/**/*.json
+data/**/*.parquet
+data/**/*.csv.gz
 !data/**/.gitkeep
 !data/wasden_corpus/**
+
+# Historical Data folder — NEVER commit. Covers all 4 data assets:
+#   1. Dow Jones/dowjones1 data.xlsx           (DJIA daily 1928-2009)
+#   2. Emery 5 Year/                            (23GB minute bars 2020-2025)
+#   3. JMWFM_Bloomberg_Data_Pulling.xlsx        (live Bloomberg workbook)
+#   4. Wasden Weekenders 2022-2025/             (28 source PDFs — duplicates of data/wasden_corpus/)
+Historical Data/
+"Historical Data"/
+
+# Model artifacts — never commit trained model binaries
+models/**/*.pkl
+models/**/*.joblib
+models/**/*.pt
+models/**/*.bin
+models/**/*.h5
+models/**/*.onnx
+!models/**/.gitkeep
+
+# MLflow local store
+mlruns/
+
+# Local working DB / cache (Chroma is already covered above)
+*.db
+*.sqlite
+*.sqlite3
 
 # Dev-cycle workflow artifacts
 .workflow/
