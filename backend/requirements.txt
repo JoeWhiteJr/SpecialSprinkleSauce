@@ -1,12 +1,16 @@
-fastapi==0.115.6
+# fastapi 0.115.6 -> 0.119.1 to allow starlette 0.48.x (clears CVE-2025-54121).
+# starlette 0.49.1 (clears CVE-2025-62727) is blocked by fastapi 0.119.x pin
+# (starlette<0.49.0); allowlisted with follow-up to bump fastapi to >=0.124.
+fastapi==0.119.1
+starlette==0.48.0  # transitive (fastapi); pins CVE-2025-54121 fix
 uvicorn[standard]==0.34.0
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 pydantic==2.11.7
 pydantic-settings==2.7.1
 supabase==2.12.0
 httpx==0.27.0
 openpyxl==3.1.5
-python-multipart==0.0.18
+python-multipart==0.0.27
 
 # Wasden Watch RAG pipeline
 pymupdf==1.25.3
@@ -29,10 +33,21 @@ statsmodels==0.14.4
 newsapi-python==0.2.7
 
 # Week 7 decision pipeline
+# langgraph held at 0.2.0 deliberately. Bumping to 1.0.10 (clears
+# CVE-2026-28277) requires a deliberate StateGraph + node-signature
+# port tracked as task #51 in TODO.md. The langchain-core /
+# langgraph-checkpoint / langsmith CVEs ride along with that port and
+# are allowlisted together (revisit 2026-05-25). DO NOT bump this
+# cluster independently — the four packages must move as a set.
 langgraph==0.2.0
 
 # MLflow experiment tracking and model registry
-mlflow==2.10.0
+# Bumped 2.10.0 -> 2.22.4 (latest 2.x). Avoided 3.x major jump per triage notes.
+# Transitive pins force fixed gunicorn / protobuf / pyarrow.
+mlflow==2.22.4
+gunicorn==22.0.0  # transitive (mlflow); pins CVE-2024-6827, CVE-2024-1135 fix
+protobuf==5.29.6  # transitive (mlflow); pins CVE-2026-0994 fix
+pyarrow==17.0.0   # transitive (mlflow); pins PYSEC-2024-161 fix
 
 # Rate limiting
 slowapi==0.1.9
