@@ -265,6 +265,21 @@
 - [ ] **#49** Configure branch protection on `main` (require CI + review, block force-push, block direct commits)
 - [ ] **#50** Align CI Python version to 3.12 (matches local venv)
 
+- [ ] **#52** Bump Next.js 14 → 16 and clear 14 frontend CVEs (DEADLINE 2026-05-25)
+  - Surfaced by PR #36 + #39 dep-vuln triage. 14 high-severity CVEs in `next` itself + 2 transitive (`postcss`, `glob`) all require Next.js 16.x.
+  - Cluster bumps: `next` 14.2.35 → 16.2.6, `eslint-config-next` 14.2.35 → 16.2.6.
+  - Step plan:
+    1. Read Next.js 14 → 15 and 15 → 16 migration guides
+    2. Identify breaking changes that affect this codebase: App Router behavior, React 19 requirement, async cookies/headers/params, caching defaults, image optimization
+    3. Bump pins in `frontend/package.json`, run `npm install`
+    4. Update affected code paths (likely: every `page.tsx` that uses cookies/headers/params, image components)
+    5. Run `npm run build` — must succeed
+    6. Run `npm test` — all 30 tests must pass
+    7. Manually walk all 18 sidebar pages — confirm no regressions
+    8. Remove the 16 npm-audit allowlist entries from `.github/npm-audit-allowlist.txt`
+  - Single dedicated PR. Touches the frontend hot path; high regression risk.
+  - If 2026-05-25 arrives without this PR landing, re-triage: extend the deadline OR commit to the port immediately.
+
 - [ ] **#51** Port pipeline code to LangGraph 1.x and bump deps (DEADLINE 2026-05-25)
   - Surfaced by PR #36 dep-vuln triage. langgraph 0.2 → 1.0.10 clears CVE-2026-28277, but the move requires API edits.
   - Cluster bumps in one go: `langgraph` 0.2.0 → 1.0.10, `langchain-core` 0.2.43 → 1.3.3, `langgraph-checkpoint` 1.0.12 → 4.0.0, `langsmith` 0.1.147 → 0.7.31.
