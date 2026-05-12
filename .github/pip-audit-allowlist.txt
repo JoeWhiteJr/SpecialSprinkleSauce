@@ -1,0 +1,24 @@
+# pip-audit allowlist for Wasden Watch
+#
+# Purpose: explicitly ignore specific CVE / advisory IDs that have been
+# triaged and accepted as "no safe upgrade path right now". This file is
+# consumed by the `security` job in .github/workflows/ci.yml.
+#
+# Format (one entry per non-blank, non-comment line):
+#     <VULN_ID>     # YYYY-MM-DD  rationale (revisit by YYYY-MM-DD)
+#
+# Examples:
+#     GHSA-xxxx-xxxx-xxxx   # 2026-05-11  pinned old mlflow; bump blocked by
+#                           #             breaking change in tracking API.
+#                           #             Revisit by 2026-06-30.
+#     PYSEC-2024-12345      # 2026-05-11  transitive dep, no fix available.
+#                           #             Revisit when upstream releases fix.
+#
+# Rules:
+#   1. Every entry MUST have a dated rationale and a revisit-by date.
+#   2. Prefer bumping the version over allowlisting whenever the upgrade
+#      path is safe. Allowlist is the escape hatch, not the default.
+#   3. Re-review every entry at least quarterly.
+#
+# When this file is empty (only comments), pip-audit runs WITHOUT any
+# --ignore-vuln flags (strict mode against the full OSV database).
