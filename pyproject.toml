@@ -1,0 +1,25 @@
+# Repo-root pyproject.toml
+#
+# Currently only used to centralize coverage configuration so that
+# `pytest --cov` produces the same thresholds and exclusions whether
+# invoked locally or from CI. If/when the Python code is packaged, the
+# [project] / build-system tables can be added here.
+
+[tool.coverage.run]
+source = ["app", "src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+# Starting floor: 48%. Measured baseline on main was 49.85%. We set the
+# floor 1.85 points below measured so trivial fluctuations don't break
+# CI, but a real coverage regression does. Ratchet upward as the suite
+# matures — DO NOT lower without review and a recorded justification.
+fail_under = 48
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]
