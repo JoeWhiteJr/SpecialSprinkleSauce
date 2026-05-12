@@ -83,14 +83,13 @@ jobs:
       - name: Run tests
         run: |
           # Run pytest if tests exist.
-          # Coverage threshold starts at 60% — INTENTIONALLY LOW. Ratchet
-          # this upward as the suite matures (target: 80% lines by end of
-          # the pilot trading phase). The same floor lives in
-          # `pyproject.toml` ([tool.coverage.report] fail_under) so the
-          # gate is enforced even when pytest is invoked locally without
-          # the explicit flag.
+          # Coverage threshold (--cov-fail-under) is configured in
+          # pyproject.toml ([tool.coverage.report] fail_under) so there is
+          # ONE source of truth — and the gate enforces locally too, not
+          # only in CI. Target: ratchet upward toward 80% by end of pilot
+          # trading phase.
           if [ -d "tests" ] || find . -name "test_*.py" -o -name "*_test.py" | grep -q .; then
-            pytest -v --tb=short --cov=app --cov=src --cov-report=term --cov-report=xml --cov-fail-under=60
+            pytest -v --tb=short --cov=app --cov=src --cov-report=term --cov-report=xml
           else
             echo "No tests found - skipping"
           fi
