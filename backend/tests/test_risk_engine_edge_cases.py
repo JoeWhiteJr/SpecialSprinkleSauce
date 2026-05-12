@@ -16,8 +16,6 @@ from app.services.risk.risk_engine import (  # noqa: E402
 )
 from app.services.risk.constants import (  # noqa: E402
     MAX_POSITION_PCT,
-    MIN_CASH_RESERVE_PCT,
-    MAX_CORRELATED_POSITIONS,
     CORRELATION_THRESHOLD,
     STRESS_CORRELATION_THRESHOLD,
     HIGH_MODEL_DISAGREEMENT_THRESHOLD,

@@ -16,9 +16,7 @@ from app.services.risk.pre_trade_validation import (  # noqa: E402
     run_pre_trade_validation,
     MAX_ORDER_SHARES,
     DUPLICATE_WINDOW_SECONDS,
-    PORTFOLIO_IMPACT_WARN_PCT,
 )
-from app.services.risk.constants import MAX_POSITION_PCT  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
