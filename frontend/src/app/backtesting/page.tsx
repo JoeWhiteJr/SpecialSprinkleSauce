@@ -338,7 +338,7 @@ export default function BacktestingPage() {
                             tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                           />
                           <Tooltip
-                            formatter={(value: number | undefined) => [formatCurrency(value ?? 0), "Value"]}
+                            formatter={(value) => [formatCurrency(typeof value === "number" ? value : 0), "Value"]}
                             labelFormatter={(label) => `Date: ${label}`}
                           />
                           <Line

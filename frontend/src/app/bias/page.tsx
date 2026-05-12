@@ -267,7 +267,7 @@ export default function BiasPage() {
                           border: "1px solid hsl(var(--border))",
                           borderRadius: "8px",
                         }}
-                        formatter={(value: number | undefined) => [`${value ?? 0}%`, "Agreement Rate"]}
+                        formatter={(value) => [`${typeof value === "number" ? value : 0}%`, "Agreement Rate"]}
                       />
                       <Line
                         type="monotone"
