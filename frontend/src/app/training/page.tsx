@@ -513,7 +513,7 @@ function SweepsTab() {
                     />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip
-                      formatter={(value: number | undefined) => (value ?? 0).toFixed(4)}
+                      formatter={(value) => (typeof value === "number" ? value : 0).toFixed(4)}
                       labelFormatter={(label) => `${sweepResult.parameter_name}: ${label}`}
                     />
                     <Legend />
