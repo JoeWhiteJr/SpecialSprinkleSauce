@@ -173,8 +173,9 @@ jobs:
         # coverage thresholds today. Agent A should move this into
         # `frontend/package.json` devDependencies in a follow-up so we
         # stop paying the install cost on every CI run AND so the version
-        # is locked. Pinning the major to match `vitest@^3.0.0`.
-        run: npm install --no-save --no-audit --no-fund @vitest/coverage-v8@^3.0.0
+        # is locked. Pinning the major to match `vitest@^4.0.0` (bumped from
+        # ^3 when vitest was upgraded to v4 in chore/vite-8-plugin-react-6).
+        run: npm install --no-save --no-audit --no-fund @vitest/coverage-v8@^4.0.0
 
       - name: Run tests
         # Thresholds live in `vitest.config.ts` under `test.coverage.thresholds`.
