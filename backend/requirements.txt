@@ -47,7 +47,7 @@ langgraph==1.2.0
 mlflow==2.22.4
 gunicorn==22.0.0  # transitive (mlflow); pins CVE-2024-6827, CVE-2024-1135 fix
 protobuf==5.29.6  # transitive (mlflow); pins CVE-2026-0994 fix
-pyarrow==17.0.0   # transitive (mlflow); pins PYSEC-2024-161 fix
+pyarrow==24.0.0   # transitive (mlflow); pins PYSEC-2024-161 fix
 
 # Rate limiting
 slowapi==0.1.9
