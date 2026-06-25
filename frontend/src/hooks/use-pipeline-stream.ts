@@ -2,7 +2,7 @@
 
 import { useCallback, useReducer, useRef } from "react"
 import type { PipelineNodeState, PipelineStreamEvent } from "@/lib/types"
-import { API_URL, getHeaders } from "@/lib/api"
+import { getHeaders } from "@/lib/api"
 
 const INITIAL_NODES: PipelineNodeState[] = [
   { name: "quant_scoring", label: "Quant Scoring", index: 0, status: "pending", data: null, skipReason: null, durationMs: null },
@@ -93,7 +93,7 @@ export function usePipelineStream() {
     dispatch({ type: "CONNECTING" })
 
     try {
-      const res = await fetch(`${API_URL}/api/pipeline/run-stream`, {
+      const res = await fetch(`/api/pipeline/run-stream`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ ticker, price: price || 0.0 }),
