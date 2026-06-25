@@ -63,11 +63,29 @@ CVE-2025-15036     # 2026-05-11  mlflow server CVE; only RC fix (3.9.0rc0). Revi
 CVE-2024-37059     # 2026-05-11  mlflow server CVE; no fix listed. Revisit by 2026-06-10.
 CVE-2025-14287     # 2026-05-11  mlflow server CVE; only RC fix (3.8.0rc0). Revisit by 2026-06-10.
 
-# --- Category B: starlette pinned by fastapi parent ---
-CVE-2025-62727     # 2026-05-11  starlette 0.49.1 fix blocked by fastapi 0.119.1 starlette<0.49 pin. Bump fastapi to >=0.124.0 in follow-up PR. Revisit by 2026-06-10.
+# --- Category B: starlette (RESOLVED 2026-06-25) ---
+# CVE-2025-62727 removed — fixed by starlette 1.3.1 bump (fastapi 0.136.1 unblocked the upgrade).
 
-# --- Category C: transformers Trainer CVE (unused code path) ---
-CVE-2026-1839      # 2026-05-11  affects HF Trainer class; we use sentence-transformers for embeddings only, no Trainer import. Fix is 5.0.0rc3 (RC, blocked by no-RC-in-prod rule). Revisit when transformers 5.0.0 GA ships, by 2026-06-10.
+# --- Category C: transformers Trainer CVEs (unused code path) ---
+CVE-2026-1839      # 2026-05-11  affects HF Trainer class; we use sentence-transformers for embeddings only, no Trainer import. Fix is 5.0.0rc3 (RC, blocked by no-RC-in-prod rule). Revisit when transformers 5.0.0 GA ships, by 2026-07-31.
+PYSEC-2025-217     # 2026-06-25  transformers 4.57.6; no fix version published yet. Same no-Trainer-import rationale. Revisit when fix is available, by 2026-09-30.
+
+# --- Category E: pyarrow transitive bump blocked by mlflow 2.x (added 2026-06-25) ---
+# PYSEC-2026-113 fix requires pyarrow 23.0.1 — a 6-major-version jump from 17.0.0.
+# pyarrow is a transitive dep of mlflow 2.22.4 which caps it well below 23.
+# Bumping without mlflow 3.x migration risks runtime breakage. Hold until mlflow 3.x lands.
+PYSEC-2026-113     # 2026-06-25  pyarrow 17.0.0; fix in 23.0.1 blocked by mlflow 2.x transitive cap. Revisit when mlflow 3.x migration completes, by 2026-12-31.
+
+# --- Category F: new mlflow tracking-server CVEs (added 2026-06-25) ---
+# All fix versions require mlflow 3.x (major bump). Same client-only deployment
+# rationale as Category A — we never run mlflow server/ui; server CVEs not in threat model.
+PYSEC-2026-195     # 2026-06-25  mlflow server CVE; fix in 3.10.1 (major bump). Revisit by 2026-12-31.
+CVE-2026-2614      # 2026-06-25  mlflow server CVE; fix in 3.10.0 (major bump). Revisit by 2026-12-31.
+CVE-2026-2393      # 2026-06-25  mlflow server CVE; fix in 3.9.0 (major bump). Revisit by 2026-12-31.
+CVE-2026-2652      # 2026-06-25  mlflow server CVE; fix in 3.11.0 (major bump). Revisit by 2026-12-31.
+CVE-2026-4137      # 2026-06-25  mlflow server CVE; fix in 3.11.0 (major bump). Revisit by 2026-12-31.
+CVE-2026-0596      # 2026-06-25  mlflow server CVE; fix in 3.9.0 (major bump). Revisit by 2026-12-31.
+CVE-2026-2734      # 2026-06-25  mlflow server CVE; fix in 3.10.0 (major bump). Revisit by 2026-12-31.
 
 # --- Category D: langgraph cluster (deferred to task #51 — coordinated port) ---
 # These four packages (langgraph + langchain-core + langgraph-checkpoint +
