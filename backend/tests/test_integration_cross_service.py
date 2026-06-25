@@ -17,9 +17,12 @@ class TestEmergencyEndpoints:
         assert "active" in data or "is_shutdown" in data
 
     def test_shutdown_and_resume(self):
-        resp = client.post("/api/emergency/shutdown", json={"initiated_by": "test", "reason": "integration test"})
+        # initiated_by and approved_by are now derived from the authenticated
+        # principal (X-API-Key), not the request body (fixes #57/#59).
+        # In dev mode (no per-user keys) the principal resolves to "dev".
+        resp = client.post("/api/emergency/shutdown", json={"reason": "integration test"})
         assert resp.status_code == 200
-        resp = client.post("/api/emergency/resume", json={"approved_by": "test"})
+        resp = client.post("/api/emergency/resume", json={})
         assert resp.status_code == 200
 
     def test_get_history(self):

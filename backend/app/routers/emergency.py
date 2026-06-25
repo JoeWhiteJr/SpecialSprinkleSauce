@@ -5,11 +5,12 @@ Provides endpoints for emergency shutdown, resume, order cancellation,
 and force paper mode. All endpoints work in mock mode.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from starlette.requests import Request
 
 from app.audit import log_action
+from app.auth import identify_principal
 from app.rate_limit import limiter
 from app.services.emergency.shutdown_manager import ShutdownManager
 
@@ -21,29 +22,40 @@ _manager = ShutdownManager()
 
 
 class ShutdownRequest(BaseModel):
-    initiated_by: str
     reason: str
+    # initiated_by is derived from the authenticated principal (X-API-Key).
+    # Removed from request body to prevent identity self-assertion (issue #59).
 
 
 class ResumeRequest(BaseModel):
-    approved_by: str
+    pass
+    # approved_by is derived from the authenticated principal (X-API-Key).
+    # Removed from request body to prevent identity self-assertion (issue #59).
 
 
 @router.post("/shutdown")
 @limiter.limit("10/minute")
-async def emergency_shutdown(request: Request, req: ShutdownRequest):
+async def emergency_shutdown(
+    request: Request,
+    req: ShutdownRequest,
+    principal: str = Depends(identify_principal),
+):
     """Trigger emergency shutdown — cancel all orders and halt trading."""
-    log_action("emergency_shutdown", "/api/emergency/shutdown", req.initiated_by, req.reason)
-    return _manager.emergency_shutdown(req.initiated_by, req.reason)
+    log_action("emergency_shutdown", "/api/emergency/shutdown", principal, req.reason)
+    return _manager.emergency_shutdown(principal, req.reason)
 
 
 @router.post("/resume")
 @limiter.limit("10/minute")
-async def resume_trading(request: Request, req: ResumeRequest):
+async def resume_trading(
+    request: Request,
+    req: ResumeRequest,
+    principal: str = Depends(identify_principal),
+):
     """Resume trading after emergency shutdown."""
-    log_action("resume_trading", "/api/emergency/resume", req.approved_by)
+    log_action("resume_trading", "/api/emergency/resume", principal)
     try:
-        return _manager.resume_trading(req.approved_by)
+        return _manager.resume_trading(principal)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
