@@ -83,3 +83,17 @@ mlruns/
 
 # Dev-cycle workflow artifacts
 .workflow/
+
+# JMWFM local data - not pushed to repo
+JMWFM/
+
+# Local project context files (Claude-generated session docs)
+PROJECT.md
+PROJECT_HISTORY.md
+
+# Local reference materials (not for shared repo)
+/*.pdf
+/*.docx
+
+# Generated local artifacts
+docs/ml-architecture-diagram.html
