@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     # API key for backend authentication (empty = auth disabled for local dev)
     api_key: str = ""
 
+    # Per-approver API keys for identity-sensitive endpoints (approve/shutdown/resume).
+    # When either is set, identify_principal() derives identity from the key rather
+    # than trusting a request-body field. Both must be set in production.
+    # Empty in local dev → falls back to shared api_key + body user_name (dev mode).
+    api_key_joe: str = ""
+    api_key_jared: str = ""
+
     # Alpaca API keys (never hardcode — loaded from .env)
     alpaca_paper_api_key: str = ""
     alpaca_paper_secret_key: str = ""

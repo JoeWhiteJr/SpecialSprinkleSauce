@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from app.auth import identify_principal
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
@@ -64,7 +65,10 @@ class AutoTuneRequest(BaseModel):
 
 
 class ApprovalRequest(BaseModel):
-    user_name: str = Field(..., pattern="^(joe|jared)$")
+    # Dev-mode fallback only. In production (per-user keys configured),
+    # identify_principal() derives the approver from X-API-Key and this field
+    # is ignored. Never trusted as identity in production.
+    user_name: str | None = Field(default=None, pattern="^(joe|jared)$")
 
 
 class SnapshotCreateRequest(BaseModel):
@@ -301,38 +305,57 @@ async def list_proposals(
 
 @router.post("/proposals/{proposal_id}/approve")
 async def approve_proposal(
-    proposal_id: str, request: ApprovalRequest
+    proposal_id: str,
+    request: ApprovalRequest,
+    principal: str = Depends(identify_principal),
 ) -> dict[str, Any]:
-    """Approve a parameter change proposal."""
+    """Approve a parameter change proposal.
+
+    Identity is derived from the authenticated principal (X-API-Key), not the
+    request body. In production (per-user keys configured) the body user_name
+    field is ignored. In dev mode (no per-user keys) it is used as a fallback.
+    """
     proposal = _proposals.get(proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
+
+    # Resolve approver: principal from key in production; body fallback in dev
+    if principal == "dev":
+        approver = request.user_name
+        if not approver:
+            raise HTTPException(
+                status_code=400,
+                detail="user_name required in dev mode (no per-approver keys configured)",
+            )
+    else:
+        approver = principal
 
     from datetime import datetime, timezone
 
     now = datetime.now(timezone.utc).isoformat()
 
-    if request.user_name == "joe":
-        proposal["joe_approved_at"] = now
-        if proposal.get("jared_approved_at"):
-            proposal["status"] = "applied"
-            proposal["applied_at"] = now
-        else:
-            proposal["status"] = "joe_approved"
-    elif request.user_name == "jared":
-        proposal["jared_approved_at"] = now
+    if approver == "joe":
         if proposal.get("joe_approved_at"):
-            proposal["status"] = "applied"
-            proposal["applied_at"] = now
-        else:
-            proposal["status"] = "jared_approved"
+            raise HTTPException(status_code=409, detail="joe has already approved this proposal")
+        proposal["joe_approved_at"] = now
+        proposal["status"] = "applied" if proposal.get("jared_approved_at") else "joe_approved"
+    elif approver == "jared":
+        if proposal.get("jared_approved_at"):
+            raise HTTPException(status_code=409, detail="jared has already approved this proposal")
+        proposal["jared_approved_at"] = now
+        proposal["status"] = "applied" if proposal.get("joe_approved_at") else "jared_approved"
+    else:
+        raise HTTPException(status_code=403, detail=f"Unrecognised approver: {approver!r}")
+
+    if proposal["status"] == "applied":
+        proposal["applied_at"] = now
 
     # For non-risk params, single approval is enough
     if not _auto_tuner.check_approval(proposal)["missing"]:
         if proposal["status"] not in ("applied", "rejected", "rolled_back"):
             proposal["status"] = "applied"
             proposal["applied_at"] = now
-            history_entry = _auto_tuner.apply_proposal(proposal, request.user_name)
+            history_entry = _auto_tuner.apply_proposal(proposal, approver)
             _history.append(history_entry)
 
     return proposal
