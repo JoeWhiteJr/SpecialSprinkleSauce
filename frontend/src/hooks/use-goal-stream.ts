@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useReducer, useRef } from "react"
-import { API_URL, getHeaders } from "@/lib/api"
+import { getHeaders } from "@/lib/api"
 
 export interface GoalConfig {
   capital: number
@@ -94,7 +94,7 @@ export function useGoalStream() {
     dispatch({ type: "CONNECTING" })
 
     try {
-      const res = await fetch(`${API_URL}/api/goals/run-stream`, {
+      const res = await fetch(`/api/goals/run-stream`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify(config),
