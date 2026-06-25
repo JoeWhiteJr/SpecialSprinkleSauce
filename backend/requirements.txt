@@ -22,7 +22,7 @@ sentence-transformers==3.4.1
 colorama==0.4.6
 
 # Week 3 screening + Week 8 risk/execution
-finnhub-python==2.4.28
+finnhub-python==2.4.29
 yfinance==0.2.36
 alpaca-py==0.33.1
 
@@ -39,7 +39,7 @@ newsapi-python==0.2.7
 # langgraph-checkpoint / langsmith CVEs ride along with that port and
 # are allowlisted together (revisit 2026-05-25). DO NOT bump this
 # cluster independently — the four packages must move as a set.
-langgraph==1.2.0
+langgraph==1.2.6
 
 # MLflow experiment tracking and model registry
 # Bumped 2.10.0 -> 2.22.4 (latest 2.x). Avoided 3.x major jump per triage notes.
@@ -50,4 +50,4 @@ protobuf==5.29.6  # transitive (mlflow); pins CVE-2026-0994 fix
 pyarrow==17.0.0   # transitive (mlflow); pins PYSEC-2024-161 fix
 
 # Rate limiting
-slowapi==0.1.9
+slowapi==0.1.10
