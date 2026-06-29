@@ -44,7 +44,7 @@ langgraph==1.2.6
 # MLflow experiment tracking and model registry
 # Bumped 2.10.0 -> 2.22.4 (latest 2.x). Avoided 3.x major jump per triage notes.
 # Transitive pins force fixed gunicorn / protobuf / pyarrow.
-mlflow==2.22.4
+mlflow==3.14.0
 gunicorn==22.0.0  # transitive (mlflow); pins CVE-2024-6827, CVE-2024-1135 fix
 protobuf==5.29.6  # transitive (mlflow); pins CVE-2026-0994 fix
 pyarrow==17.0.0   # transitive (mlflow); pins PYSEC-2024-161 fix
