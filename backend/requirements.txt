@@ -23,7 +23,7 @@ colorama==0.4.6
 
 # Week 3 screening + Week 8 risk/execution
 finnhub-python==2.4.29
-yfinance==0.2.36
+yfinance==1.5.1
 alpaca-py==0.43.4
 
 # Week 5 quant models
