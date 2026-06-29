@@ -14,7 +14,7 @@ python-multipart==0.0.32  # bumped 0.0.28->0.0.32; clears CVE-2026-53537/38/39/4
 
 # Wasden Watch RAG pipeline
 pymupdf==1.25.3
-chromadb==0.6.3
+chromadb==1.5.9
 anthropic==0.43.0
 google-generativeai==0.8.6
 tiktoken==0.9.0
