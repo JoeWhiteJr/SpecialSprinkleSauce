@@ -51,3 +51,7 @@ pyarrow==17.0.0   # transitive (mlflow); pins PYSEC-2024-161 fix
 
 # Rate limiting
 slowapi==0.1.10
+
+# Self-hosted Postgres client — replaces Supabase data layer (SSS-T008)
+psycopg[binary]==3.3.4
+psycopg-pool==3.3.1
